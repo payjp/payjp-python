@@ -1,0 +1,14 @@
+language: python
+python:
+  - "2.7"
+  - "pypy"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+script:
+  - pip install . --use-mirrors
+  - pip install -r requirements.txt --use-mirrors
+cache: apt
+matrix:
+  allow_failures:
+    - python: pypy
