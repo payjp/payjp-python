@@ -1,5 +1,7 @@
 # PAY.JP for Python
 
+[![Build Status](https://travis-ci.org/payjp/payjp-python.svg?branch=master)](https://travis-ci.org/payjp/payjp-python)
+
 ## Installation
 
 Install from PyPi using [pip](http://www.pip-installer.org/en/latest/), a
