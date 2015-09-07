@@ -5,7 +5,7 @@
 Install from PyPi using [pip](http://www.pip-installer.org/en/latest/), a
 package manager for Python.
 
-    pip install payjp-python // (準備中) 
+    pip install payjp
 
 Or, you can [download the source code
 (ZIP)](https://github.com/payjp/payjp-python/zipball/master "payjp-python
