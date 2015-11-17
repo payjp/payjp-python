@@ -347,13 +347,18 @@ class Plan(CreateableAPIResource, DeletableAPIResource,
     pass
 
 
-class Account(CreateableAPIResource, ListableAPIResource,
-              UpdateableAPIResource):
+class Account(APIResource):
+
+    @classmethod
+    def retrieve(cls, id=None, api_key=None, **params):
+        instance = cls(id, api_key, **params)
+        instance.refresh()
+        return instance
 
     def instance_url(self):
         id = self.get('id')
         if not id:
-            return "/v1/account"
+            return "/v1/accounts"
         id = util.utf8(id)
         base = self.class_url()
         extn = quote_plus(id)
@@ -399,7 +404,7 @@ class Subscription(CreateableAPIResource, DeletableAPIResource,
         url = self.instance_url() + '/resume'
         self.refresh_from(self.request('post', url, kwargs))
         return self
-    
+
     def cancel(self, **kwargs):
         url = self.instance_url() + '/cancel'
         self.refresh_from(self.request('post', url, kwargs))
