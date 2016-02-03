@@ -1,6 +1,7 @@
 # PAY.JP for Python
 
 [![Build Status](https://travis-ci.org/payjp/payjp-python.svg?branch=master)](https://travis-ci.org/payjp/payjp-python)
+[![npm](https://img.shields.io/npm/v/payjp.svg)](payjp)
 
 ## Installation
 
