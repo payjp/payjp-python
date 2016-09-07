@@ -17,7 +17,7 @@ source code") for `payjp-python`, and then run:
 
 ## Documentation
 
-Please see our official [documentation](http://docs.pay.jp).
+Please see our official [documentation](https://pay.jp/docs/api).
 
 ## Dependencies 
 
