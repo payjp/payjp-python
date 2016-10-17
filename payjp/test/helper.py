@@ -109,8 +109,8 @@ class PayjpApiTestCase(PayjpTestCase):
         super(PayjpApiTestCase, self).setUp()
 
         self.requestor_patcher = patch('payjp.api_requestor.APIRequestor')
-        requestor_class_mock = self.requestor_patcher.start()
-        self.requestor_mock = requestor_class_mock.return_value
+        self.requestor_class_mock = self.requestor_patcher.start()
+        self.requestor_mock = self.requestor_class_mock.return_value
 
     def tearDown(self):
         super(PayjpApiTestCase, self).tearDown()
