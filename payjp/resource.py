@@ -62,7 +62,7 @@ def _serialize_list(array, previous):
 
 class PayjpObject(dict):
 
-    def __init__(self, id=None, api_key=None, payjp_account=None, **kwargs):
+    def __init__(self, id=None, api_key=None, payjp_account=None, api_base=None, **kwargs):
         super(PayjpObject, self).__init__()
 
         self._unsaved_values = set()
@@ -70,6 +70,7 @@ class PayjpObject(dict):
 
         self._retrieve_params = kwargs
         self._previous = None
+        self._api_base = api_base
 
         object.__setattr__(self, 'api_key', api_key)
         object.__setattr__(self, 'payjp_account', payjp_account)
@@ -129,18 +130,21 @@ class PayjpObject(dict):
             "To unset a property, set it to None.")
 
     @classmethod
-    def construct_from(cls, values, key, payjp_account=None):
+    def construct_from(cls, values, key, payjp_account=None, api_base=None):
         instance = cls(values.get('id'), api_key=key,
                        payjp_account=payjp_account)
         instance.refresh_from(values, api_key=key,
-                              payjp_account=payjp_account)
+                              payjp_account=payjp_account,
+                              api_base=api_base)
         return instance
 
     def refresh_from(self, values, api_key=None, partial=False,
-                     payjp_account=None):
+                     payjp_account=None, api_base=None):
         self.api_key = api_key or getattr(values, 'api_key', None)
         self.payjp_account = \
             payjp_account or getattr(values, 'payjp_account', None)
+        if self.api_base is not None:
+            self._api_base = api_base
 
         # Wipe old state before setting new.  This is useful for e.g.
         # updating a customer, where there is no persistent card
@@ -180,9 +184,8 @@ class PayjpObject(dict):
 
         return params
 
-    @classmethod
-    def api_base(cls):
-        return None
+    def api_base(self):
+        return self._api_base
 
     def request(self, method, url, params=None, headers=None):
         if params is None:
@@ -260,8 +263,8 @@ class APIResource(PayjpObject):
         return '{0}/{1}'.format(base, ext)
 
     @classmethod
-    def retrieve(cls, id, api_key=None, **kwargs):
-        instance = cls(id, api_key, **kwargs)
+    def retrieve(cls, id, api_key=None, payjp_account=None, api_base=None, **kwargs):
+        instance = cls(id, api_key, payjp_account, api_base, **kwargs)
         instance.refresh()
         return instance
 
@@ -273,8 +276,8 @@ class APIResource(PayjpObject):
 class ListableAPIResource(APIResource):
 
     @classmethod
-    def all(cls, api_key=None, payjp_account=None, **params):
-        requestor = api_requestor.APIRequestor(api_key, account=payjp_account)
+    def all(cls, api_key=None, payjp_account=None, api_base=None, **params):
+        requestor = api_requestor.APIRequestor(api_key, account=payjp_account, api_base=api_base)
         url = cls.class_url()
         response, api_key = requestor.request('get', url, params)
         return convert_to_payjp_object(response, api_key, payjp_account)
@@ -350,8 +353,8 @@ class Plan(CreateableAPIResource, DeletableAPIResource,
 class Account(APIResource):
 
     @classmethod
-    def retrieve(cls, id=None, api_key=None, **params):
-        instance = cls(id, api_key, **params)
+    def retrieve(cls, id=None, api_key=None, payjp_account=None, api_base=None, **params):
+        instance = cls(id, api_key, payjp_account, api_base, **params)
         instance.refresh()
         return instance
 
@@ -385,7 +388,7 @@ class Card(UpdateableAPIResource, DeletableAPIResource):
         return "%s/%s/cards/%s" % (base, owner_extn, extn)
 
     @classmethod
-    def retrieve(cls, id, api_key=None, payjp_account=None, **params):
+    def retrieve(cls, id, api_key=None, payjp_account=None, api_base=None, **params):
         raise NotImplementedError(
             "Can't retrieve a card without a customer ID."
             "Use customer.cards.retrieve('card_id') or "

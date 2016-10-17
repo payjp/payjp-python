@@ -14,7 +14,7 @@ from payjp.test.helper import (
     PayjpUnitTestCase, PayjpApiTestCase,
     MyListable, MyCreatable, MyUpdateable, MyDeletable,
     MyResource, NOW, DUMMY_CARD, DUMMY_CHARGE,
-    DUMMY_PLAN, SAMPLE_INVOICE)
+    DUMMY_PLAN)
 
 
 class PayjpObjectTests(PayjpUnitTestCase):
@@ -101,22 +101,6 @@ class PayjpObjectTests(PayjpUnitTestCase):
         self.assertEqual('nested', nested.id)
         self.assertEqual('key', nested.api_key)
         self.assertEqual('acct_foo', nested.payjp_account)
-
-    def test_refresh_from_nested_object(self):
-        obj = payjp.resource.PayjpObject.construct_from(
-            SAMPLE_INVOICE, 'key')
-
-        self.assertEqual(1, len(obj.lines.subscriptions))
-        self.assertTrue(
-            isinstance(obj.lines.subscriptions[0],
-                       payjp.resource.PayjpObject))
-        self.assertEqual('month', obj.lines.subscriptions[0].plan.interval)
-
-    def test_to_json(self):
-        obj = payjp.resource.PayjpObject.construct_from(
-            SAMPLE_INVOICE, 'key')
-
-        self.check_invoice_data(json.loads(str(obj)))
 
     def check_invoice_data(self, data):
         # Check rough structure
@@ -716,6 +700,16 @@ class ChargeTest(PayjpResourceTest):
             None
         )
 
+    def test_charge_list_retrieve_with_api_key_and_api_base(self):
+        payjp.Charge.retrieve('ch_test_id', api_key='KEY', api_base='BASE')
+        self.requestor_class_mock.assert_called_with(key='KEY', api_base='BASE', account=None)
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/charges/ch_test_id',
+            {},
+            None
+        )
+
     def test_create_with_source_param(self):
         payjp.Charge.create(amount=100, currency='jpy',
                              source='btcrcv_test_receiver')
@@ -742,10 +736,30 @@ class AccountTest(PayjpResourceTest):
             None
         )
 
+    def test_retrieve_account_with_api_key_and_api_base(self):
+        payjp.Account.retrieve('acct_foo', api_key='KEY', api_base='BASE')
+        self.requestor_class_mock.assert_called_with(key='KEY', api_base='BASE', account=None)
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/accounts/acct_foo',
+            {},
+            None
+        )
+
+
 class CustomerTest(PayjpResourceTest):
 
     def test_list_customers(self):
         payjp.Customer.all()
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/customers',
+            {},
+        )
+
+    def test_list_customers_with_api_key_and_api_base(self):
+        payjp.Customer.all(api_key='KEY', api_base='BASE')
+        self.requestor_class_mock.assert_called_with('KEY', account=None, api_base='BASE')
         self.requestor_mock.request.assert_called_with(
             'get',
             '/v1/customers',
