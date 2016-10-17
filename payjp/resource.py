@@ -16,7 +16,7 @@ from . import (
 
 logger = logging.getLogger('payjp')
 
-def convert_to_payjp_object(resp, api_key, account):
+def convert_to_payjp_object(resp, api_key, account, api_base=None):
     types = {'account': Account, 'card': Card,
              'charge': Charge, 'customer': Customer,
              'event': Event, 'plan': Plan,
@@ -24,7 +24,7 @@ def convert_to_payjp_object(resp, api_key, account):
              'transfer': Transfer, 'list': ListObject}
 
     if isinstance(resp, list):
-        return [convert_to_payjp_object(i, api_key, account) for i in resp]
+        return [convert_to_payjp_object(i, api_key, account, api_base) for i in resp]
     elif isinstance(resp, dict) and not isinstance(resp, PayjpObject):
         resp = resp.copy()
         klass_name = resp.get('object')
@@ -32,7 +32,7 @@ def convert_to_payjp_object(resp, api_key, account):
             klass = types.get(klass_name, PayjpObject)
         else:
             klass = PayjpObject
-        return klass.construct_from(resp, api_key, payjp_account=account)
+        return klass.construct_from(resp, api_key, payjp_account=account, api_base=api_base)
     else:
         return resp
 
@@ -161,7 +161,7 @@ class PayjpObject(dict):
 
         for k, v in values.items():
             super(PayjpObject, self).__setitem__(
-                k, convert_to_payjp_object(v, api_key, payjp_account))
+                k, convert_to_payjp_object(v, api_key, payjp_account, api_base))
 
         self._previous = values
 
@@ -195,7 +195,7 @@ class PayjpObject(dict):
             account=self.payjp_account)
         response, api_key = requestor.request(method, url, params, headers)
 
-        return convert_to_payjp_object(response, api_key, self.payjp_account)
+        return convert_to_payjp_object(response, api_key, self.payjp_account, self.api_base())
 
     def __repr__(self):
         ident_parts = [type(self).__name__]
@@ -280,7 +280,7 @@ class ListableAPIResource(APIResource):
         requestor = api_requestor.APIRequestor(api_key, account=payjp_account, api_base=api_base)
         url = cls.class_url()
         response, api_key = requestor.request('get', url, params)
-        return convert_to_payjp_object(response, api_key, payjp_account)
+        return convert_to_payjp_object(response, api_key, payjp_account, api_base)
 
 
 class CreateableAPIResource(APIResource):
