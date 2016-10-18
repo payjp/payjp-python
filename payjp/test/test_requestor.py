@@ -1,387 +1,138 @@
 # coding: utf-8
 
-import base64
-import datetime
+import json
 import unittest
 
-from mock import Mock, MagicMock
-from six.moves.urllib.parse import parse_qsl, urlsplit
-from six import PY3
+import mock
 
 import payjp
-
-from payjp.test.helper import PayjpUnitTestCase
-
-VALID_API_METHODS = ('get', 'post', 'delete')
+from .base import PayjpTest
 
 
-class GMT1(datetime.tzinfo):
-
-    def utcoffset(self, dt):
-        return datetime.timedelta(hours=1)
-
-    def dst(self, dt):
-        return datetime.timedelta(0)
-
-    def tzname(self, dt):
-        return "Europe/Prague"
-
-
-class APIHeaderMatcher(object):
-    EXP_KEYS = ['X-Payjp-Client-User-Agent', 'User-Agent', 'Authorization']
-    METHOD_EXTRA_KEYS = {"post": ["Content-Type"]}
-
-    def __init__(self, api_key=None, extra={}, request_method=None):
-        self.request_method = request_method
-        if api_key is not None:
-            self.api_key = self._encode(api_key)
-        else:
-            self.api_key = self._encode(payjp.api_key)
-        self.extra = extra
-
-    def __eq__(self, other):
-        return (self._keys_match(other) and
-                self._auth_match(other) and
-                self._extra_match(other))
-
-    def _encode(self, api_key):
-        if PY3:
-            return str(
-                base64.b64encode(
-                    bytes(''.join([api_key, ':']), 'utf-8')), 'utf-8')
-        else:
-            return base64.b64encode(''.join([api_key, ':']))
-
-    def _keys_match(self, other):
-        expected_keys = self.EXP_KEYS + list(self.extra.keys())
-        if self.request_method is not None and self.request_method in \
-                self.METHOD_EXTRA_KEYS:
-            expected_keys.extend(self.METHOD_EXTRA_KEYS[self.request_method])
-
-        return (sorted(other.keys()) == sorted(expected_keys))
-
-    def _auth_match(self, other):
-        return other['Authorization'] == "Basic %s" % (self.api_key,)
-
-    def _extra_match(self, other):
-        for k, v in self.extra.items():
-            if other[k] != v:
-                return False
-
-        return True
-
-
-class QueryMatcher(object):
-    def __init__(self, expected):
-        self.expected = sorted(expected)
-
-    def __eq__(self, other):
-        query = urlsplit(other).query or other
-
-        parsed = parse_qsl(query)
-        return self.expected == sorted(parsed)
-
-
-class UrlMatcher(object):
-    def __init__(self, expected):
-        self.exp_parts = urlsplit(expected)
-
-    def __eq__(self, other):
-        other_parts = urlsplit(other)
-
-        for part in ('scheme', 'netloc', 'path', 'fragment'):
-            expected = getattr(self.exp_parts, part)
-            actual = getattr(other_parts, part)
-            if expected != actual:
-                print((('Expected %s "%s" but got "%s"') % (
-                    part, expected, actual)))
-                return False
-
-        q_matcher = QueryMatcher(parse_qsl(self.exp_parts.query))
-        return q_matcher == other
-
-
-class APIRequestorRequestTests(PayjpUnitTestCase):
-    ENCODE_INPUTS = {
-        'dict': {
-            'astring': 'bar',
-            'anint': 5,
-            'anull': None,
-            'adatetime': datetime.datetime(2013, 1, 1, tzinfo=GMT1()),
-            'atuple': (1, 2),
-            'adict': {'foo': 'bar', 'boz': 5},
-            'alist': ['foo', 'bar'],
-        },
-        'list': [1, 'foo', 'baz'],
-        'string': 'boo',
-        'unicode': u'\u1234',
-        'datetime': datetime.datetime(2013, 1, 1, second=1, tzinfo=GMT1()),
-        'none': None,
-    }
-
-    ENCODE_EXPECTATIONS = {
-        'dict': [
-            ('%s[astring]', 'bar'),
-            ('%s[anint]', 5),
-            ('%s[adatetime]', 1356994800),
-            ('%s[adict][foo]', 'bar'),
-            ('%s[adict][boz]', 5),
-            ('%s[alist][]', 'foo'),
-            ('%s[alist][]', 'bar'),
-            ('%s[atuple][]', 1),
-            ('%s[atuple][]', 2),
-        ],
-        'list': [
-            ('%s[]', 1),
-            ('%s[]', 'foo'),
-            ('%s[]', 'baz'),
-        ],
-        'string': [('%s', 'boo')],
-        'unicode': [('%s', payjp.util.utf8(u'\u1234'))],
-        'datetime': [('%s', 1356994801)],
-        'none': [],
-    }
+class TestRequestor(unittest.TestCase):
 
     def setUp(self):
-        super(APIRequestorRequestTests, self).setUp()
+        super(TestRequestor, self).setUp()
+        self.requestor = payjp.Requestor('sk_xxx', 'https://api.pay.jp/v1')
 
-        self.http_client = Mock(payjp.http_client.HTTPClient)
-        self.http_client.name = 'mockclient'
+    def test_build_header(self):
+        ua_keys = {'bindings_version', 'lang', 'publisher', 'httplib', 'lang_version', 'platform', 'uname'}
+        header_keys = {'X-Payjp-Client-User-Agent', 'User-Agent', 'httplib'}
 
-        self.requestor = payjp.api_requestor.APIRequestor(
-            client=self.http_client)
+        result = self.requestor.build_header('GET')
+        assert set(result.keys()) == header_keys
+        assert set(json.loads(result['X-Payjp-Client-User-Agent']).keys()) == ua_keys
 
-    def mock_response(self, return_body, return_code, requestor=None):
-        if not requestor:
-            requestor = self.requestor
+        result = self.requestor.build_header('POST')
+        header_keys.update({'Content-Type'})
+        assert set(result.keys()) == header_keys
+        assert set(json.loads(result['X-Payjp-Client-User-Agent']).keys()) == ua_keys
 
-        self.http_client.request = Mock(
-            return_value=(return_body, return_code))
+    def test_build_url(self):
+        assert self.requestor.build_url('charges/xxx') == '{}/charges/xxx'.format(self.requestor.apibase)
 
-    def check_call(self, meth, abs_url=None, headers=None,
-                   post_data=None, requestor=None):
-        if not abs_url:
-            abs_url = 'https://api.pay.jp%s' % (self.valid_path,)
-        if not requestor:
-            requestor = self.requestor
-        if not headers:
-            headers = APIHeaderMatcher(request_method=meth)
+    def test_build_query_plain(self):
+        query = {
+            'amount': 1000,
+            'email': 'example@example.com'
+        }
 
-        self.http_client.request.assert_called_with(
-            meth, abs_url, headers, post_data)
+        assert self.requestor.build_query(query) == query
 
-    @property
-    def valid_path(self):
-        return '/foo'
-
-    def encoder_check(self, key):
-        stk_key = "my%s" % (key,)
-
-        value = self.ENCODE_INPUTS[key]
-        expectation = [(k % (stk_key,), v) for k, v in
-                       self.ENCODE_EXPECTATIONS[key]]
-
-        stk = []
-        fn = getattr(payjp.api_requestor.APIRequestor, "encode_%s" % (key,))
-        fn(stk, stk_key, value)
-
-        if isinstance(value, dict):
-            expectation.sort()
-            stk.sort()
-
-        self.assertEqual(expectation, stk)
-
-    def _test_encode_naive_datetime(self):
-        stk = []
-
-        payjp.api_requestor.APIRequestor.encode_datetime(
-            stk, 'test', datetime.datetime(2013, 1, 1))
-
-        # Naive datetimes will encode differently depending on your system
-        # local time.  Since we don't know the local time of your system,
-        # we just check that naive encodings are within 24 hours of correct.
-        self.assertTrue(60 * 60 * 24 > abs(stk[0][1] - 1356994800))
-
-    def test_param_encoding(self):
-        self.mock_response('{}', 200)
-
-        self.requestor.request('get', '', self.ENCODE_INPUTS)
-
-        expectation = []
-        for type_, values in self.ENCODE_EXPECTATIONS.items():
-            expectation.extend([(k % (type_,), str(v)) for k, v in values])
-
-        self.check_call('get', QueryMatcher(expectation))
-
-    def test_dictionary_list_encoding(self):
-        params = {
-            'foo': {
-                '0': {
-                    'bar': 'bat',
-                }
+    def test_build_query_card(self):
+        query = {
+            'amount': 1000,
+            'card': {
+                'number': 4242424242424242,
+                'exp_month': 12,
+                'exp_year': 2020,
             }
         }
-        encoded = list(payjp.api_requestor._api_encode(params))
-        key, value = encoded[0]
 
-        self.assertEqual('foo[0][bar]', key)
-        self.assertEqual('bat', value)
+        result = {
+            'amount': 1000,
+            'card[number]': 4242424242424242,
+            'card[exp_month]': 12,
+            'card[exp_year]': 2020,
+        }
 
-    def test_url_construction(self):
-        CASES = (
-            ('https://api.pay.jp?foo=bar', '', {'foo': 'bar'}),
-            ('https://api.pay.jp?foo=bar', '?', {'foo': 'bar'}),
-            ('https://api.pay.jp', '', {}),
-            (
-                'https://api.pay.jp/%20spaced?foo=bar%24&baz=5',
-                '/%20spaced?foo=bar%24',
-                {'baz': '5'}
-            ),
-            (
-                'https://api.pay.jp?foo=bar&foo=bar',
-                '?foo=bar',
-                {'foo': 'bar'}
-            ),
-        )
+        assert self.requestor.build_query(query) == result
 
-        for expected, url, params in CASES:
-            self.mock_response('{}', 200)
-
-            self.requestor.request('get', url, params)
-
-            self.check_call('get', expected)
-
-    def test_empty_methods(self):
-        for meth in VALID_API_METHODS:
-            self.mock_response('{}', 200)
-
-            body, key = self.requestor.request(meth, self.valid_path, {})
-
-            if meth == 'post':
-                post_data = ''
-            else:
-                post_data = None
-
-            self.check_call(meth, post_data=post_data)
-            self.assertEqual({}, body)
-
-    def test_methods_with_params_and_response(self):
-        for meth in VALID_API_METHODS:
-            self.mock_response('{"foo": "bar", "baz": 6}', 200)
-
-            params = {
-                'alist': [1, 2, 3],
-                'adict': {'frobble': 'bits'},
-                'adatetime': datetime.datetime(2013, 1, 1, tzinfo=GMT1())
+    def test_build_query_metadata(self):
+        query = {
+            'amount': 1000,
+            'email': 'example@example.com',
+            'metadata': {
+                'key1': 'val1',
+                'key2': 'val2',
             }
-            encoded = ('adict%5Bfrobble%5D=bits&adatetime=1356994800&'
-                       'alist%5B%5D=1&alist%5B%5D=2&alist%5B%5D=3')
+        }
 
-            body, key = self.requestor.request(meth, self.valid_path,
-                                               params)
-            self.assertEqual({'foo': 'bar', 'baz': 6}, body)
+        result = {
+            'amount': 1000,
+            'email': 'example@example.com',
+            'metadata[key1]': 'val1',
+            'metadata[key2]': 'val2',
+        }
 
-            if meth == 'post':
-                self.check_call(
-                    meth,
-                    post_data=QueryMatcher(parse_qsl(encoded)))
-            else:
-                abs_url = "https://api.pay.jp%s?%s" % (
-                    self.valid_path, encoded)
-                self.check_call(meth, abs_url=UrlMatcher(abs_url))
+        assert self.requestor.build_query(query) == result
 
-    def test_uses_headers(self):
-        self.mock_response('{}', 200)
-        self.requestor.request('get', self.valid_path, {}, {'foo': 'bar'})
-        self.check_call('get', headers=APIHeaderMatcher(extra={'foo': 'bar'}))
+        query = {
+            'metadata': {
+                'key1': 'val1',
+                'key1': 'val1',
+            }
+        }
 
-    def test_uses_instance_key(self):
-        key = 'fookey'
-        requestor = payjp.api_requestor.APIRequestor(key,
-                                                     client=self.http_client)
+        result = {
+            'metadata[key1]': 'val1',
+        }
 
-        self.mock_response('{}', 200, requestor=requestor)
+        assert self.requestor.build_query(query) == result
 
-        body, used_key = requestor.request('get', self.valid_path, {})
 
-        self.check_call('get', headers=APIHeaderMatcher(key,
-                        request_method='get'), requestor=requestor)
-        self.assertEqual(key, used_key)
+class TestRequestorRequest(unittest.TestCase):
 
-    def test_passes_api_version(self):
-        payjp.api_version = 'fooversion'
+    def setUp(self):
+        super(TestRequestorRequest, self).setUp()
+        self._pa = mock.patch('payjp.requests.request')
+        self._pa.start()
+        self.requestor = payjp.Requestor('sk_xxx', 'https://api.pay.jp/v1')
 
-        self.mock_response('{}', 200)
+    def tearDown(self):
+        self._pa.stop()
 
-        body, key = self.requestor.request('get', self.valid_path, {})
+    def test_request(self):
+        self.requestor.request('GET', 'charges/xxx', query={'key': 'val'})
+        payjp.requests.request.assert_called_once()
 
-        self.check_call('get', headers=APIHeaderMatcher(
-            extra={'Payjp-Version': 'fooversion'}, request_method='get'))
+        res = payjp.requests.request.call_args_list[0][1]
 
-    def test_uses_instance_account(self):
-        account = 'acct_foo'
-        requestor = payjp.api_requestor.APIRequestor(account=account,
-                                                      client=self.http_client)
+        assert 'headers' in res
+        assert res['url'] == 'https://api.pay.jp/v1/charges/xxx'
+        assert res['params'] == {'key': 'val'}
+        assert 'data' not in res
+        assert res['method'] == 'GET'
+        assert res['auth'] == ('sk_xxx', '')
 
-        self.mock_response('{}', 200, requestor=requestor)
+    def test_request_post(self):
+        self.requestor.request('POST', 'charges', query={'key': 'val'})
+        payjp.requests.request.assert_called_once()
 
-        requestor.request('get', self.valid_path, {})
+        res = payjp.requests.request.call_args_list[0][1]
 
-        self.check_call(
-            'get',
-            requestor=requestor,
-            headers=APIHeaderMatcher(
-                extra={'Payjp-Account': account},
-                request_method='get'
-            ),
-        )
+        assert 'headers' in res
+        assert res['data'] == {'key': 'val'}
+        assert 'params' not in res
+        assert res['method'] == 'POST'
 
-    def test_fails_without_api_key(self):
-        payjp.api_key = None
+    def test_request_delete(self):
+        self.requestor.request('DELETE', 'charges/xxx')
+        payjp.requests.request.assert_called_once()
 
-        self.assertRaises(payjp.error.AuthenticationError,
-                          self.requestor.request,
-                          'get', self.valid_path, {})
+        res = payjp.requests.request.call_args_list[0][1]
 
-    def test_not_found(self):
-        self.mock_response('{"error": {}}', 404)
-
-        self.assertRaises(payjp.error.InvalidRequestError,
-                          self.requestor.request,
-                          'get', self.valid_path, {})
-
-    def test_authentication_error(self):
-        self.mock_response('{"error": {}}', 401)
-
-        self.assertRaises(payjp.error.AuthenticationError,
-                          self.requestor.request,
-                          'get', self.valid_path, {})
-
-    def test_card_error(self):
-        self.mock_response('{"error": {}}', 402)
-
-        self.assertRaises(payjp.error.CardError,
-                          self.requestor.request,
-                          'get', self.valid_path, {})
-
-    def test_server_error(self):
-        self.mock_response('{"error": {}}', 500)
-
-        self.assertRaises(payjp.error.APIError,
-                          self.requestor.request,
-                          'get', self.valid_path, {})
-
-    def test_invalid_json(self):
-        self.mock_response('{', 200)
-
-        self.assertRaises(payjp.error.APIError,
-                          self.requestor.request,
-                          'get', self.valid_path, {})
-
-    def test_invalid_method(self):
-        self.assertRaises(payjp.error.APIConnectionError,
-                          self.requestor.request,
-                          'foo', 'bar')
-
-if __name__ == '__main__':
-    unittest.main()
+        assert 'headers' in res
+        assert 'params' not in res
+        assert 'data' not in res
+        assert res['method'] == 'DELETE'
