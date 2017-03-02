@@ -256,7 +256,8 @@ class APIResource(PayjpObject):
     def instance_url(self):
         id = self.get('id')
         if not id:
-            raise error.InvalidRequestError
+            raise error.InvalidRequestError("Could not create instance url without it's id",
+                                            None)
 
         base = self.class_url()
         ext = quote_plus(id)
