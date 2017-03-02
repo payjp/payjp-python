@@ -194,6 +194,12 @@ class ListObjectTests(PayjpApiTestCase):
 
 class APIResourceTests(PayjpApiTestCase):
 
+    def test_instance_url_without_id(self):
+        from payjp.error import InvalidRequestError
+        resource = MyResource.construct_from({'id': None}, 'mykey')
+        with self.assertRaises(InvalidRequestError):
+            resource.instance_url()
+
     def test_retrieve_and_refresh(self):
         self.mock_response({
             'id': 'foo2',
