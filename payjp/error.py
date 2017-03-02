@@ -36,10 +36,6 @@ class CardError(PayjpException):
         self.code = code 
 
 
-class InvalidRequestError(PayjpException):
-    pass
-
-
 class AuthenticationError(PayjpException):
     pass
 
