@@ -3,7 +3,7 @@
 from .card import Card
 
 
-class CustomerSubscription(object):
+class CustomerSubscription:
 
     resource = 'subscriptions'
 
@@ -19,7 +19,7 @@ class CustomerSubscription(object):
             customer_id=customer_id, resource=self.resource, id=id))
 
 
-class Customer(object):
+class Customer:
 
     resource = 'customers'
 

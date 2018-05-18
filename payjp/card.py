@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-class Card(object):
+class Card:
 
     resource = 'cards'
 

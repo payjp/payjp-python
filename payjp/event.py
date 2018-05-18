@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-class Event(object):
+class Event:
 
     resource = 'events'
 

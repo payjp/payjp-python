@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-class Transfer(object):
+class Transfer:
 
     resource = 'transfers'
 

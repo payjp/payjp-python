@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-class Charge(object):
+class Charge:
 
     resource = 'charges'
 

@@ -37,7 +37,7 @@ class Payjp:
         self.events = Event(self.requestor)
 
 
-class Requestor(object):
+class Requestor:
 
     def __init__(self, apikey, apibase):
         self.apikey = apikey

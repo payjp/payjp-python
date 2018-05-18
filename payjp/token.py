@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-class Token(object):
+class Token:
 
     resource = 'tokens'
 

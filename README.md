@@ -22,7 +22,6 @@ python setup.py install
 ## Dependencies
 
 - requests
-- six
 
 Install dependencies from using [pip](http://www.pip-installer.org/en/latest/):
 
