@@ -93,11 +93,14 @@ class TestRequestorRequest(unittest.TestCase):
     def setUp(self):
         super(TestRequestorRequest, self).setUp()
         self._pa = mock.patch('payjp.requests.request')
+        self._pb = mock.patch('payjp.Requestor.interpret_response')
         self._pa.start()
+        self._pb.start()
         self.requestor = payjp.Requestor('sk_xxx', 'https://api.pay.jp/v1')
 
     def tearDown(self):
         self._pa.stop()
+        self._pb.stop()
 
     def test_request(self):
         self.requestor.request('GET', 'charges/xxx', query={'key': 'val'})
@@ -133,3 +136,54 @@ class TestRequestorRequest(unittest.TestCase):
         assert 'params' not in res
         assert 'data' not in res
         assert res['method'] == 'DELETE'
+
+
+class TestRequestorHandleResponse(unittest.TestCase):
+
+    def setUp(self):
+        super(TestRequestorHandleResponse, self).setUp()
+        self.requestor = payjp.Requestor('sk_xxx', 'https://api.pay.jp/v1')
+
+    def test_interpret_response_error(self):
+
+        class _:
+            content = {}
+            status_code = 500
+
+            def json(self):
+                raise Exception()
+
+        obj = _()
+
+        with self.assertRaises(payjp.error.APIError):
+            self.requestor.interpret_response(obj)
+
+    def test_interpret_response_200(self):
+
+        class _:
+            content = {}
+            status_code = 200
+
+            def json(self):
+                return {}
+
+        obj = _()
+
+        res = self.requestor.interpret_response(obj)
+        assert res == {}
+
+    def test_handle_api_response(self):
+        response = {
+            'error': {
+                'message': 'message',
+                'param': 'param'
+            }
+        }
+        with self.assertRaises(payjp.error.InvalidRequestError):
+            self.requestor.handle_api_error(b'body', 400, response)
+        with self.assertRaises(payjp.error.InvalidRequestError):
+            self.requestor.handle_api_error(b'body', 404, response)
+        with self.assertRaises(payjp.error.AuthenticationError):
+            self.requestor.handle_api_error(b'body', 401, response)
+        with self.assertRaises(payjp.error.CardError):
+            self.requestor.handle_api_error(b'body', 402, response)

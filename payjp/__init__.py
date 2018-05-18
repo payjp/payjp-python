@@ -12,6 +12,7 @@ from .token import Token
 from .subscription import Subscription
 from .transfer import Transfer
 from .event import Event
+from . import error
 
 
 __all__ = ['Payjp', 'Requestor']
@@ -104,4 +105,41 @@ class Requestor:
         except Exception as e:
             raise e
 
-        return res.json()
+        return self.interpret_response(res)
+
+    def interpret_response(self, response):
+        body = response.content
+        code = response.status_code
+        try:
+            r = response.json()
+        except Exception:
+            raise error.APIError(
+                "Invalid response body from API: %s "
+                "(HTTP response code was %d)" % (body, code),
+                body, code)
+
+        if not (200 <= code < 300):
+            self.handle_api_error(body, code, response)
+
+        return r
+
+    def handle_api_error(self, body, code, response):
+        try:
+            err = response['error']
+        except (KeyError, TypeError):
+            raise error.APIError(
+                "Invalid response object from API: %r (HTTP response code "
+                "was %d)" % (body, code),
+                body, code, response)
+
+        if code in [400, 404]:
+            raise error.InvalidRequestError(
+                err.get('message'), err.get('param'), body, code, response)
+        elif code == 401:
+            raise error.AuthenticationError(
+                err.get('message'), body, code, response)
+        elif code == 402:
+            raise error.CardError(err.get('message'), err.get('param'),
+                                  err.get('code'), body, code, response)
+
+        raise error.APIError(err.get('message'), body, code, response)
