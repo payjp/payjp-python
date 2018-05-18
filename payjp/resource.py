@@ -332,6 +332,11 @@ class Charge(CreateableAPIResource, ListableAPIResource,
         self.refresh_from(self.request('post', url, kwargs))
         return self
 
+    def reauth(self, **kwargs):
+        url = self.instance_url() + '/reauth'
+        self.refresh_from(self.request('post', url, kwargs))
+        return self
+
 
 class Event(ListableAPIResource):
     pass
