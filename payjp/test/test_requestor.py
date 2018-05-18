@@ -12,9 +12,11 @@ class TestRequestor(unittest.TestCase):
         super(TestRequestor, self).setUp()
         self.requestor = payjp.Requestor('sk_xxx', 'https://api.pay.jp/v1')
 
-    def test_build_header(self):
+    def test_build_header_urlencode(self):
         ua_keys = {'bindings_version', 'lang', 'publisher', 'httplib', 'lang_version', 'platform', 'uname'}
         header_keys = {'X-Payjp-Client-User-Agent', 'User-Agent', 'httplib'}
+
+        self.requestor.header_type = 'urlencode'
 
         result = self.requestor.build_header('GET')
         assert set(result.keys()) == header_keys

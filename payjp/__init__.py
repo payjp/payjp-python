@@ -41,6 +41,8 @@ class Requestor:
     def __init__(self, apikey, apibase):
         self.apikey = apikey
         self.apibase = apibase
+        # header_type = urlencode or json
+        self.header_type = None
 
     def build_header(self, method):
         ua = {
@@ -65,7 +67,7 @@ class Requestor:
             'httplib': 'requests',
         }
 
-        if method == 'POST':
+        if method == 'POST' and self.header_type == 'urlencode':
             headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
         return headers
@@ -83,7 +85,16 @@ class Requestor:
         return query
 
     def request(self, method, endpoint, query={}, json={}):
+        if len(query) > 0 and len(json) > 0:
+            raise Exception('You can not specify query and json at the same time.')
+
         url = self.build_url(endpoint)
+
+        if len(query) > 0:
+            self.header_type = 'urlencode'
+        else:
+            self.header_type = 'json'
+
         headers = self.build_header(method)
 
         kwargs = dict(
