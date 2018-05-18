@@ -53,12 +53,21 @@ class ChargeTest(PayjpTest):
 
     def test_charge_refund(self):
         params = {
-            'refund_reason': 'PPAP'
+            'refund_reason': 'cancel'
         }
         self.payjp.charges.refund('ch_xxx', params)
 
         self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'charges/ch_xxx/refund', params)
+
+    def test_charge_reauth(self):
+        params = {
+            'expiry_days': 30
+        }
+        self.payjp.charges.reauth('ch_xxx', params)
+
+        self.payjp.requestor.request.assert_called_once()
+        self.payjp.requestor.request.assert_called_with('POST', 'charges/ch_xxx/reauth', params)
 
 
 if __name__ == '__main__':

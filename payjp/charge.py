@@ -22,3 +22,6 @@ class Charge:
 
     def capture(self, id, query={}):
         return self.requestor.request('POST', '{}/{}/capture'.format(self.resource, id), query)
+
+    def reauth(self, id, query={}):
+        return self.requestor.request('POST', '{}/{}/reauth'.format(self.resource, id), query)
