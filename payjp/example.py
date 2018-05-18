@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from payjp import Payjp
 
 payjp = Payjp('sk_test_c62fade9d045b54cd76d7036')

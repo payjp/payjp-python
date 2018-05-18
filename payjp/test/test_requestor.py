@@ -1,12 +1,9 @@
-# coding: utf-8
-
 import json
 import unittest
 
 import mock
 
 import payjp
-from .base import PayjpTest
 
 
 class TestRequestor(unittest.TestCase):
