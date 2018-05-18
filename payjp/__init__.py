@@ -62,7 +62,7 @@ class Requestor(object):
 
         headers = {
             'X-Payjp-Client-User-Agent': json.dumps(ua),
-            'User-Agent': 'Payjp/v1 PythonBindings/{}'.format(VERSION),
+            'User-Agent': 'Payjp/v2 PythonBindings/{}'.format(VERSION),
             'httplib': 'requests',
         }
 
