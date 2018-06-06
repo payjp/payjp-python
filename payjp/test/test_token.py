@@ -15,13 +15,11 @@ class TokenTest(PayjpTest):
         }
         self.payjp.tokens.create(params)
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'tokens', params)
 
     def test_token_retrieve(self):
         self.payjp.tokens.retrieve('tok_xxx')
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('GET', 'tokens/tok_xxx')
 
 

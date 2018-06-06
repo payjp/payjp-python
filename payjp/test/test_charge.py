@@ -8,7 +8,6 @@ class ChargeTest(PayjpTest):
     def test_charge_list(self):
         self.payjp.charges.list()
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('GET', 'charges', {})
 
     def test_charge_create(self):
@@ -24,13 +23,11 @@ class ChargeTest(PayjpTest):
         }
         self.payjp.charges.create(params)
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'charges', params)
 
     def test_charge_retrieve(self):
         self.payjp.charges.retrieve('ch_xxx')
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('GET', 'charges/ch_xxx')
 
     def test_charge_update(self):
@@ -39,7 +36,6 @@ class ChargeTest(PayjpTest):
         }
         self.payjp.charges.update('ch_xxx', params)
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'charges/ch_xxx', params)
 
     def test_charge_capture(self):
@@ -48,7 +44,6 @@ class ChargeTest(PayjpTest):
         }
         self.payjp.charges.capture('ch_xxx', params)
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'charges/ch_xxx/capture', params)
 
     def test_charge_refund(self):
@@ -57,7 +52,6 @@ class ChargeTest(PayjpTest):
         }
         self.payjp.charges.refund('ch_xxx', params)
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'charges/ch_xxx/refund', params)
 
     def test_charge_reauth(self):
@@ -66,7 +60,6 @@ class ChargeTest(PayjpTest):
         }
         self.payjp.charges.reauth('ch_xxx', params)
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('POST', 'charges/ch_xxx/reauth', params)
 
 

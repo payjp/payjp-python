@@ -8,7 +8,6 @@ class AccountTest(PayjpTest):
     def test_account_retrieve(self):
         self.payjp.accounts.retrieve()
 
-        self.payjp.requestor.request.assert_called_once()
         self.payjp.requestor.request.assert_called_with('GET', 'accounts')
 
 
