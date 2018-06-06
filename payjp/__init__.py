@@ -22,7 +22,7 @@ class Payjp:
 
     def __init__(self, apikey, apibase=None):
         self.apikey = apikey
-        self.apibase = apibase if apibase else 'https://api.pay.jp/v1'
+        self.apibase = apibase or 'https://api.pay.jp/v1'
 
         self.requestor = Requestor(self.apikey, self.apibase)
 
