@@ -10,6 +10,7 @@ python:
 script:
   - pip install .
   - pip install -r requirements.txt
+  - python setup.py test
 cache: apt
 matrix:
   allow_failures:
