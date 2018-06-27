@@ -14,7 +14,7 @@ install_requires.append('six >= 1.9.0')
 
 setup(
     name="payjp",
-    version="0.0.4",
+    version="0.0.5",
     description='PAY.JP python bindings',
     author="PAY.JP",
     author_email='support@pay.jp',
