@@ -287,10 +287,10 @@ class ListableAPIResource(APIResource):
 class CreateableAPIResource(APIResource):
 
     @classmethod
-    def create(cls, api_key=None, payjp_account=None, **params):
+    def create(cls, api_key=None, payjp_account=None, headers=None, **params):
         requestor = api_requestor.APIRequestor(api_key, account=payjp_account)
         url = cls.class_url()
-        response, api_key = requestor.request('post', url, params)
+        response, api_key = requestor.request('post', url, params, headers)
         return convert_to_payjp_object(response, api_key, payjp_account)
 
 
