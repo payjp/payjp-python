@@ -406,6 +406,16 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
 
         self.requestor = payjp.api_requestor.APIRequestor()
 
+    def test_retry_disabled(self):
+        payjp.max_retry = 0
+        payjp.retry_interval = 0.1
+        self.return_values = [499, 599]  # returns 599 at 2nd try
+        with self.request_raw_patch:
+            with self.assertRaises(payjp.error.APIError) as error:
+                self.requestor.request('get', '/test', {})
+            
+            self.assertEqual(error.exception.http_status, 499)
+
     def test_no_retry(self):
         payjp.max_retry = 2
         payjp.retry_interval = 0.1
