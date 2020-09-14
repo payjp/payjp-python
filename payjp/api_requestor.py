@@ -7,6 +7,7 @@ import json
 import logging
 import platform
 import time
+import random
 
 from six import PY3
 from six.moves.urllib.parse import urlencode, urlsplit, urlunsplit
@@ -35,8 +36,17 @@ class APIRequestor(object):
         self._client = client or http_client.new_default_http_client()
 
     def request(self, method, url, params=None, headers=None):
-        body, code, my_api_key = self.request_raw(
-            method.lower(), url, params, headers)
+        max_retry = payjp.max_retry or 1
+        for i in range(max_retry + 1):
+            body, code, my_api_key = self.request_raw(
+                method.lower(), url, params, headers)
+            if code != 429:
+                break
+            elif i != max_retry:
+                # backoff with jitter
+                wait = (payjp.retry_interval * 2 ** i)
+                time.sleep(wait / 2 + random.uniform(0, wait / 2))
+
         response = self.interpret_response(body, code)
         return response, my_api_key
 
