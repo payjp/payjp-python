@@ -35,6 +35,15 @@ class APIRequestor(object):
 
         self._client = client or http_client.new_default_http_client()
 
+    def _get_retry_interval(self, retry_count):
+        """Get retry interval.
+
+        Based on "Exponential backoff with half jitter" algorithm.
+        https://aws.amazon.com/jp/blogs/architecture/exponential-backoff-and-jitter/
+        """
+        wait = (payjp.retry_interval * 2 ** retry_count)
+        return (wait / 2 + random.uniform(0, wait / 2))
+
     def request(self, method, url, params=None, headers=None):
         max_retry = payjp.max_retry or 1
         for i in range(max_retry + 1):
@@ -43,9 +52,7 @@ class APIRequestor(object):
             if code != 429:
                 break
             elif i != max_retry:
-                # backoff with jitter
-                wait = (payjp.retry_interval * 2 ** i)
-                time.sleep(wait / 2 + random.uniform(0, wait / 2))
+                time.sleep(self._get_retry_interval(i))
 
         response = self.interpret_response(body, code)
         return response, my_api_key

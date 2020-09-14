@@ -4,7 +4,7 @@ import base64
 import datetime
 import unittest
 
-from mock import Mock, MagicMock
+from mock import Mock, MagicMock, patch
 from six.moves.urllib.parse import parse_qsl, urlsplit
 from six import PY3
 
@@ -389,6 +389,68 @@ class APIRequestorRequestTests(PayjpUnitTestCase):
         self.assertRaises(payjp.error.APIConnectionError,
                           self.requestor.request,
                           'foo', 'bar')
+
+class APIRequestorRetryTest(PayjpUnitTestCase):
+
+    def setUp(self):
+        super(APIRequestorRetryTest, self).setUp()
+        self.return_values = []
+        def return_value_generator():
+            for status in self.return_values:
+                yield ('{{"error": {{"status": {status}, "message": "test"}}}}'.format(status=status), status, 'sk_live_aaa')
+        gen = return_value_generator()
+        def request_raw(*args, **kw):
+            return next(gen)
+
+        self.request_raw_patch = patch('payjp.api_requestor.APIRequestor.request_raw', request_raw)
+
+        self.requestor = payjp.api_requestor.APIRequestor()
+
+    def test_no_retry(self):
+        payjp.max_retry = 2
+        payjp.retry_interval = 0.1
+        self.return_values = [599, 429, 429, 429]  # returns 599 at first try
+        with self.request_raw_patch:
+            with self.assertRaises(payjp.error.APIError) as error:
+                self.requestor.request('get', '/test', {})
+            
+            self.assertEqual(error.exception.http_status, 599)
+
+    def test_full_retry(self):
+        """Returns 429 after exceeds max retry"""
+        payjp.max_retry = 2
+        payjp.retry_interval = 0.1
+        self.return_values = [429, 429, 429, 200]  # first try + 2 retries + unexpected 200
+        with self.request_raw_patch:
+            with self.assertRaises(payjp.error.APIError) as error:
+                self.requestor.request('get', '/test', {})
+            
+            self.assertEqual(error.exception.http_status, 429)
+
+    def test_success_at_halfway_of_retries(self):
+        payjp.max_retry = 5
+        payjp.retry_interval = 0.1
+        self. return_values = [429, 599, 429, 429, 429]  # returns not 429 status at 2nd try
+        with self.request_raw_patch:
+            with self.assertRaises(payjp.error.APIError) as error:
+                self.requestor.request('get', '/test', {})
+
+            self.assertEqual(error.exception.http_status, 599)
+
+
+class APIRequestorRetryIntervalTest(PayjpUnitTestCase):
+
+    def setUp(self):
+        super(APIRequestorRetryIntervalTest, self).setUp()
+        self.requestor = payjp.api_requestor.APIRequestor()
+
+    def test_retry_interval(self):
+        payjp.retry_interval = 2
+        self.assertTrue(1 <= self.requestor._get_retry_interval(0) <= 2)
+        self.assertTrue(2 <= self.requestor._get_retry_interval(1) <= 4)
+        self.assertTrue(4 <= self.requestor._get_retry_interval(2) <= 8)
+
+    
 
 if __name__ == '__main__':
     unittest.main()
