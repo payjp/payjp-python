@@ -364,6 +364,13 @@ class APIRequestorRequestTests(PayjpUnitTestCase):
                           self.requestor.request,
                           'get', self.valid_path, {})
 
+    def test_too_many_request_error(self):
+        self.mock_response('{"error": {}}', 429)
+
+        self.assertRaises(payjp.error.APIError,
+                          self.requestor.request,
+                          'get', self.valid_path, {})
+
     def test_server_error(self):
         self.mock_response('{"error": {}}', 500)
 
