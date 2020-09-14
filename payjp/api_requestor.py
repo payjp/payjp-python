@@ -45,7 +45,7 @@ class APIRequestor(object):
         return (wait / 2 + random.uniform(0, wait / 2))
 
     def request(self, method, url, params=None, headers=None):
-        max_retry = payjp.max_retry or 1
+        max_retry = payjp.max_retry or 0
         for i in range(max_retry + 1):
             body, code, my_api_key = self.request_raw(
                 method.lower(), url, params, headers)
