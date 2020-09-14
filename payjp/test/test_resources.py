@@ -302,7 +302,7 @@ class CreateableAPIResourceTests(PayjpApiTestCase):
         res = MyCreatable.create()
 
         self.requestor_mock.request.assert_called_with(
-            'post', '/v1/mycreatables', {})
+            'post', '/v1/mycreatables', {}, None)
 
         self.assertTrue(isinstance(res, payjp.Charge))
         self.assertEqual('bar', res.foo)
@@ -316,7 +316,7 @@ class CreateableAPIResourceTests(PayjpApiTestCase):
         res = MyCreatable.create()
 
         self.requestor_mock.request.assert_called_with(
-            'post', '/v1/mycreatables', {})
+            'post', '/v1/mycreatables', {}, None)
 
         self.assertTrue(isinstance(res, payjp.Charge))
         self.assertEqual('bar', res.foo)
@@ -694,6 +694,7 @@ class ChargeTest(PayjpResourceTest):
             'post',
             '/v1/charges',
             DUMMY_CHARGE,
+            None
         )
 
     def test_charge_list_retrieve(self):
@@ -728,6 +729,7 @@ class ChargeTest(PayjpResourceTest):
                 'currency': 'jpy',
                 'source': 'btcrcv_test_receiver'
             },
+            None
         )
 
 
@@ -781,6 +783,7 @@ class CustomerTest(PayjpResourceTest):
                 'description': 'foo bar',
                 'card': DUMMY_CARD
             },
+            None
         )
 
     def test_unset_description(self):
@@ -844,6 +847,7 @@ class CustomerSubscriptionTest(PayjpResourceTest):
                 'card': DUMMY_CARD,
                 'plan': DUMMY_PLAN['id'],
             },
+            None
         )
     
     
@@ -895,6 +899,7 @@ class SubscriptionTest(PayjpResourceTest):
             '/v1/subscriptions',
             {'customer': customer.id,
             'plan': DUMMY_PLAN['id']},
+            None
         )
 
     def test_delete_subscriptions(self):
@@ -967,6 +972,7 @@ class PlanTest(PayjpResourceTest):
             'post',
             '/v1/plans',
             DUMMY_PLAN,
+            None
         )
 
     def test_delete_plan(self):
