@@ -38,7 +38,7 @@ class APIRequestor(object):
     def _get_retry_interval(self, retry_count):
         """Get retry interval.
 
-        Based on "Exponential backoff with half jitter" algorithm.
+        Based on "Exponential backoff with equal jitter" algorithm.
         https://aws.amazon.com/jp/blogs/architecture/exponential-backoff-and-jitter/
         """
         wait = (payjp.retry_interval * 2 ** retry_count)
@@ -52,7 +52,9 @@ class APIRequestor(object):
             if code != 429:
                 break
             elif i != max_retry:
-                time.sleep(self._get_retry_interval(i))
+                wait = self._get_retry_interval(i)
+                logger.debug('Rate limit exceeded. Retry after %s seconds.' % wait)
+                time.sleep()
 
         response = self.interpret_response(body, code)
         return response, my_api_key
