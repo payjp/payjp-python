@@ -53,7 +53,7 @@ class APIRequestor(object):
                 break
             elif i != max_retry:
                 wait = self._get_retry_interval(i)
-                logger.debug('Rate limit exceeded. Retry after %s seconds.' % wait)
+                logger.debug('Retry after %s seconds.' % wait)
                 time.sleep()
 
         response = self.interpret_response(body, code)
