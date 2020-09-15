@@ -408,7 +408,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
 
     def test_retry_disabled(self):
         payjp.max_retry = 0
-        payjp.retry_interval = 0.1
+        payjp.retry_initial_delay = 0.1
         self.return_values = [499, 599]  # returns 599 at 2nd try
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
@@ -418,7 +418,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
 
     def test_no_retry(self):
         payjp.max_retry = 2
-        payjp.retry_interval = 0.1
+        payjp.retry_initial_delay = 0.1
         self.return_values = [599, 429, 429, 429]  # returns 599 at first try
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
@@ -429,7 +429,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
     def test_full_retry(self):
         """Returns 429 after exceeds max retry"""
         payjp.max_retry = 2
-        payjp.retry_interval = 0.1
+        payjp.retry_initial_delay = 0.1
         self.return_values = [429, 429, 429, 200]  # first try + 2 retries + unexpected 200
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
@@ -439,7 +439,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
 
     def test_success_at_halfway_of_retries(self):
         payjp.max_retry = 5
-        payjp.retry_interval = 0.1
+        payjp.retry_initial_delay = 0.1
         self. return_values = [429, 599, 429, 429, 429]  # returns not 429 status at 2nd try
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
@@ -454,11 +454,15 @@ class APIRequestorRetryIntervalTest(PayjpUnitTestCase):
         super(APIRequestorRetryIntervalTest, self).setUp()
         self.requestor = payjp.api_requestor.APIRequestor()
 
-    def test_retry_interval(self):
-        payjp.retry_interval = 2
-        self.assertTrue(1 <= self.requestor._get_retry_interval(0) <= 2)
-        self.assertTrue(2 <= self.requestor._get_retry_interval(1) <= 4)
-        self.assertTrue(4 <= self.requestor._get_retry_interval(2) <= 8)
+    def test_retry_initial_delay(self):
+        payjp.retry_initial_delay = 2
+        self.assertTrue(1 <= self.requestor._get_retry_delay(0) <= 2)
+        self.assertTrue(2 <= self.requestor._get_retry_delay(1) <= 4)
+        self.assertTrue(4 <= self.requestor._get_retry_delay(2) <= 8)
+        # cap
+        self.assertTrue(16 <= self.requestor._get_retry_delay(4) <= 32)
+        self.assertTrue(16 <= self.requestor._get_retry_delay(10) <= 32)
+
 
     
 

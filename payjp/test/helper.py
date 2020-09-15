@@ -42,7 +42,7 @@ DUMMY_TRANSFER = {
 }
 
 class PayjpTestCase(unittest.TestCase):
-    RESTORE_ATTRIBUTES = ('api_version', 'api_key', 'max_retry', 'retry_interval')
+    RESTORE_ATTRIBUTES = ('api_version', 'api_key', 'max_retry', 'retry_initial_delay', 'retry_max_delay')
 
     def setUp(self):
         super(PayjpTestCase, self).setUp()
