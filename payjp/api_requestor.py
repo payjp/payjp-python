@@ -7,6 +7,7 @@ import json
 import logging
 import platform
 import time
+import random
 
 from six import PY3
 from six.moves.urllib.parse import urlencode, urlsplit, urlunsplit
@@ -34,9 +35,27 @@ class APIRequestor(object):
 
         self._client = client or http_client.new_default_http_client()
 
+    def _get_retry_delay(self, retry_count):
+        """Get retry delay seconds.
+
+        Based on "Exponential backoff with equal jitter" algorithm.
+        https://aws.amazon.com/jp/blogs/architecture/exponential-backoff-and-jitter/
+        """
+        wait = min(payjp.retry_max_delay, payjp.retry_initial_delay * 2 ** retry_count)
+        return (wait / 2 + random.uniform(0, wait / 2))
+
     def request(self, method, url, params=None, headers=None):
-        body, code, my_api_key = self.request_raw(
-            method.lower(), url, params, headers)
+        max_retry = payjp.max_retry or 0
+        for i in range(max_retry + 1):
+            body, code, my_api_key = self.request_raw(
+                method.lower(), url, params, headers)
+            if code != 429:
+                break
+            elif i != max_retry:
+                wait = self._get_retry_delay(i)
+                logger.debug('Retry after %s seconds.' % wait)
+                time.sleep(wait)
+
         response = self.interpret_response(body, code)
         return response, my_api_key
 
