@@ -1,6 +1,6 @@
 # PAY.JP for Python
 
-[![Build Status](https://travis-ci.org/payjp/payjp-python.svg?branch=master)](https://travis-ci.org/payjp/payjp-python)
+[![Build Status](https://github.com/payjp/payjp-python/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/payjp/payjp-python/actions)
 
 ## Installation
 
