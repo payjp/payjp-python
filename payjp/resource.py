@@ -1,6 +1,5 @@
 # coding: utf-8
 
-import datetime
 import json
 import logging
 import sys
@@ -8,11 +7,7 @@ import sys
 from six import string_types
 from six.moves.urllib.parse import quote_plus
 
-from . import (
-    api_requestor,
-    error,
-    util,
-)
+from payjp import api_requestor, error, util
 
 logger = logging.getLogger('payjp')
 
@@ -337,6 +332,10 @@ class Charge(CreateableAPIResource, ListableAPIResource,
         self.refresh_from(self.request('post', url, kwargs))
         return self
 
+    def tds_finish(self, **kwargs):
+        url = self.instance_url() + '/tds_finish'
+        self.refresh_from(self.request('post', url, kwargs))
+        return self
 
 class Event(ListableAPIResource):
     pass
