@@ -1,10 +1,7 @@
 # coding: utf-8
 
-import json
 import pickle
 import sys
-import time
-import datetime
 import unittest
 
 import payjp
@@ -668,10 +665,11 @@ class DeletableAPIResourceTests(PayjpApiTestCase):
 
 
 class PayjpResourceTest(PayjpApiTestCase):
+    response = {}
 
     def setUp(self):
         super(PayjpResourceTest, self).setUp()
-        self.mock_response({})
+        self.mock_response(self.response)
 
 
 class ChargeTest(PayjpResourceTest):
@@ -1120,6 +1118,30 @@ class MetadataTest(PayjpResourceTest):
             },
             None
         )
+
+
+class StatementTest(PayjpResourceTest):
+    response = {
+        'object': 'statement',
+        "id": "st_xxx",
+    }
+
+    def test_statement_urls(self):
+        statement = payjp.Statement.retrieve('st_xxx')
+        self.requestor_mock.request.assert_called_with(
+            'get', '/v1/statements/st_xxx', {}, None)
+        self.assertTrue(isinstance(statement, payjp.Statement))
+
+        statement.statement_urls(platformer=True)
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/statements/st_xxx/statement_urls',
+            {
+                'platformer': True,
+            },
+            None
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
