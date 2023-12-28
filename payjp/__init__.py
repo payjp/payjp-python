@@ -11,9 +11,9 @@ retry_initial_delay = 2
 retry_max_delay = 32
 
 # TODO include Card?
-__all__ = ['Account', 'Card', 'Charge', 'Customer', 'Event', 'Plan', 'Subscription', 'Token', 'Transfer']
+__all__ = ['Account', 'Card', 'Charge', 'Customer', 'Event', 'Plan', 'Subscription', 'Token', 'Transfer', 'Statement']
 
 # Resource
 from payjp.resource import (  # noqa
-    Account, Charge, Customer, Event, Plan, Subscription, Token, Transfer)
+    Account, Charge, Customer, Event, Plan, Subscription, Token, Transfer, Statement)
 
