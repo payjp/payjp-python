@@ -1143,5 +1143,45 @@ class StatementTest(PayjpResourceTest):
         )
 
 
+class TermTest(PayjpResourceTest):
+
+    def test_list_terms(self):
+        payjp.Term.all()
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/terms',
+            {}
+        )
+
+    def test_retrieve_term(self):
+        payjp.Term.retrieve('term_foo')
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/terms/term_foo',
+            {},
+            None
+        )
+
+
+class BalanceTest(PayjpResourceTest):
+
+    def test_list_balances(self):
+        payjp.Balance.all()
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/balances',
+            {}
+        )
+
+    def test_retrieve_balance(self):
+        payjp.Balance.retrieve('balance_foo')
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/balances/balance_foo',
+            {},
+            None
+        )
+
+
 if __name__ == '__main__':
     unittest.main()
