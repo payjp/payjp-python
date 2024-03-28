@@ -16,7 +16,7 @@ def convert_to_payjp_object(resp, api_key, account, api_base=None):
              'charge': Charge, 'customer': Customer,
              'event': Event, 'plan': Plan,
              'subscription': Subscription, 'token': Token,
-             'transfer': Transfer, 'statement': Statement, 'list': ListObject}
+             'transfer': Transfer, 'statement': Statement, 'list': ListObject, 'term': Term, 'balance': Balance}
 
     if isinstance(resp, list):
         return [convert_to_payjp_object(i, api_key, account, api_base) for i in resp]
@@ -429,3 +429,11 @@ class Statement(ListableAPIResource):
         url = self.instance_url() + '/statement_urls'
         self.refresh_from(self.request('post', url, kwargs))
         return self
+
+
+class Term(ListableAPIResource):
+    pass
+
+
+class Balance(ListableAPIResource):
+    pass
