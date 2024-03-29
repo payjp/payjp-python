@@ -1164,6 +1164,27 @@ class TermTest(PayjpResourceTest):
 
 
 class BalanceTest(PayjpResourceTest):
+    response = {
+        "created": 1438354800,
+        "id": "ba_xxx",
+        "livemode": False,
+        "net": 1000,
+        "object": "balance",
+        "type": "collecting",
+        "statements": {
+            "count": 1,
+            "data": [{
+                'object': 'statement',
+                "id": "st_xxx",
+            }],
+            "has_more": False,
+            "object": "list",
+            "url": "/v1/statements"
+        },
+        "closed": False,
+        "due_date": None,
+        "bank_info": None
+    }
 
     def test_list_balances(self):
         payjp.Balance.all()
@@ -1174,10 +1195,20 @@ class BalanceTest(PayjpResourceTest):
         )
 
     def test_retrieve_balance(self):
-        payjp.Balance.retrieve('balance_foo')
+        balance = payjp.Balance.retrieve('balance_foo')
         self.requestor_mock.request.assert_called_with(
             'get',
             '/v1/balances/balance_foo',
+            {},
+            None
+        )
+        self.assertTrue(isinstance(balance, payjp.Balance))
+        self.assertEqual(balance.id, 'ba_xxx')
+        self.assertTrue(isinstance(balance.statements.data[0], payjp.Statement))
+        balance.statements.data[0].statement_urls()
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/statements/st_xxx/statement_urls',
             {},
             None
         )
