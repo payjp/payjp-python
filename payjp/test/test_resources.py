@@ -1170,20 +1170,16 @@ class BalanceTest(PayjpResourceTest):
         "livemode": False,
         "net": 1000,
         "object": "balance",
-        "type": "collecting",
-        "statements": {
-            "count": 1,
-            "data": [{
-                'object': 'statement',
-                "id": "st_xxx",
-            }],
-            "has_more": False,
-            "object": "list",
-            "url": "/v1/statements"
-        },
+        "state": "collecting",
+        "statements": [{
+            "balance_id": "ba_xxx",
+            "created": 1438354800,
+            "id": "st_xxx",
+        }],
         "closed": False,
         "due_date": None,
-        "bank_info": None
+        "bank_info": None,
+        "tenant_id": None
     }
 
     def test_list_balances(self):
