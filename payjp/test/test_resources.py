@@ -1175,6 +1175,7 @@ class BalanceTest(PayjpResourceTest):
             "balance_id": "ba_xxx",
             "created": 1438354800,
             "id": "st_xxx",
+            "object": "statement",
         }],
         "closed": False,
         "due_date": None,
@@ -1200,8 +1201,8 @@ class BalanceTest(PayjpResourceTest):
         )
         self.assertTrue(isinstance(balance, payjp.Balance))
         self.assertEqual(balance.id, 'ba_xxx')
-        self.assertTrue(isinstance(balance.statements.data[0], payjp.Statement))
-        balance.statements.data[0].statement_urls()
+        self.assertTrue(isinstance(balance.statements[0], payjp.Statement))
+        balance.statements[0].statement_urls()
         self.requestor_mock.request.assert_called_with(
             'post',
             '/v1/statements/st_xxx/statement_urls',
