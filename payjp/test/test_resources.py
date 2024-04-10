@@ -1143,5 +1143,73 @@ class StatementTest(PayjpResourceTest):
         )
 
 
+class TermTest(PayjpResourceTest):
+
+    def test_list_terms(self):
+        payjp.Term.all()
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/terms',
+            {}
+        )
+
+    def test_retrieve_term(self):
+        payjp.Term.retrieve('term_foo')
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/terms/term_foo',
+            {},
+            None
+        )
+
+
+class BalanceTest(PayjpResourceTest):
+    response = {
+        "created": 1438354800,
+        "id": "ba_xxx",
+        "livemode": False,
+        "net": 1000,
+        "object": "balance",
+        "state": "collecting",
+        "statements": [{
+            "balance_id": "ba_xxx",
+            "created": 1438354800,
+            "id": "st_xxx",
+            "object": "statement",
+        }],
+        "closed": False,
+        "due_date": None,
+        "bank_info": None,
+        "tenant_id": None
+    }
+
+    def test_list_balances(self):
+        payjp.Balance.all()
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/balances',
+            {}
+        )
+
+    def test_retrieve_balance(self):
+        balance = payjp.Balance.retrieve('balance_foo')
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/balances/balance_foo',
+            {},
+            None
+        )
+        self.assertTrue(isinstance(balance, payjp.Balance))
+        self.assertEqual(balance.id, 'ba_xxx')
+        self.assertTrue(isinstance(balance.statements[0], payjp.Statement))
+        balance.statements[0].statement_urls()
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/statements/st_xxx/statement_urls',
+            {},
+            None
+        )
+
+
 if __name__ == '__main__':
     unittest.main()
