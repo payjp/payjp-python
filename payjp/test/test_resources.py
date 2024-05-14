@@ -1218,5 +1218,13 @@ class BalanceTest(PayjpResourceTest):
             {},
         )
 
+        balance = payjp.Balance.retrieve('ba_xxx')
+        balance.statement_urls()
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/balances/ba_xxx/statement_urls',
+            {},
+        )
+
 if __name__ == '__main__':
     unittest.main()
