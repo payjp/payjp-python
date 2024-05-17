@@ -436,4 +436,16 @@ class Term(ListableAPIResource):
 
 
 class Balance(ListableAPIResource):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        object.__setattr__(self, 'statement_urls', self.__statement_urls)
+
+    def __statement_urls(self, *args, **kwargs):
+        return self.__class__.statement_urls(self.get('id'), *args, **kwargs)
+
+    @classmethod
+    def statement_urls(cls, id, api_key=None, payjp_account=None, api_base=None, **params):
+        requestor = api_requestor.APIRequestor(api_key, account=payjp_account, api_base=api_base)
+        url = cls.class_url() + f'/{id}/statement_urls'
+        response, api_key = requestor.request('post', url, params)
+        return convert_to_payjp_object(response, api_key, payjp_account, api_base)
