@@ -1226,5 +1226,38 @@ class BalanceTest(PayjpResourceTest):
             {},
         )
 
+
+class TokenTest(PayjpResourceTest):
+
+    def test_token_create(self):
+        payjp.Token.create(card=DUMMY_CARD)
+
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/tokens',
+            DUMMY_CARD,
+            None
+        )
+
+    def test_token_retrieve(self):
+        payjp.Token.retrieve('tok_test_id')
+
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/tokens/tok_test_id',
+            {},
+            None
+        )
+
+    def test_token_tds_finish(self):
+        token = payjp.Token.retrieve('tok_test_id', api_key='KEY', api_base='BASE')
+        token.tds_finish()
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/tokens/tok_test_id/tds_finish',
+            {},
+            None
+        )
+
 if __name__ == '__main__':
     unittest.main()
