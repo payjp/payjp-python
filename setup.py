@@ -21,8 +21,4 @@ setup(
     packages=['payjp', 'payjp.test'],
     url='https://github.com/payjp/payjp-python',
     install_requires=install_requires,
-    tests_require=[
-        'mock >= 1.3.0'
-        ],
-    test_suite='payjp.test.all',
 )
