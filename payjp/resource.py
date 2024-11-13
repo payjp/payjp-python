@@ -322,7 +322,11 @@ class DeletableAPIResource(APIResource):
 # resources
 
 class Token(CreateableAPIResource):
-    pass
+
+    def tds_finish(self, **kwargs):
+        url = self.instance_url() + '/tds_finish'
+        self.refresh_from(self.request('post', url, kwargs))
+        return self
 
 
 class Charge(CreateableAPIResource, ListableAPIResource,
