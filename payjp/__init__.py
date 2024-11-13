@@ -23,10 +23,11 @@ __all__ = [
     'Transfer',
     'Statement',
     'Term',
-    'Balance'
+    'Balance',
+    'ThreeDSecureRequest'
 ]
 
 # Resource
 from payjp.resource import (  # noqa
-    Account, Charge, Customer, Event, Plan, Subscription, Token, Transfer, Statement, Term, Balance)
+    Account, Charge, Customer, Event, Plan, Subscription, Token, Transfer, Statement, Term, Balance, ThreeDSecureRequest)
 

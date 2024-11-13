@@ -1226,5 +1226,54 @@ class BalanceTest(PayjpResourceTest):
             {},
         )
 
+
+class ThreeDSecureRequestTest(PayjpResourceTest):
+    response = {
+        "created": 1730084767,
+        "expired_at": None,
+        "finished_at": None,
+        "id": "tdsr_xxx",
+        "livemode": True,
+        "object": "three_d_secure_request",
+        "resource_id": "car_4ec110e0700daf893160424fe03c",
+        "result_received_at": None,
+        "started_at": None,
+        "state": "created",
+        "tenant_id": None,
+        "three_d_secure_status": "unverified"
+    }
+
+    def test_list_three_d_secure(self):
+        payjp.ThreeDSecureRequest.all()
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/three_d_secure_requests',
+            {}
+        )
+
+    def test_retrieve_three_d_secure(self):
+        three_d_secure_request = payjp.ThreeDSecureRequest.retrieve('three_d_secure_request_foo')
+        self.requestor_mock.request.assert_called_with(
+            'get',
+            '/v1/three_d_secure_requests/three_d_secure_request_foo',
+            {},
+            None
+        )
+        self.assertTrue(isinstance(three_d_secure_request, payjp.ThreeDSecureRequest))
+        self.assertEqual(three_d_secure_request.id, 'tdsr_xxx')
+
+    def test_create_three_d_secure(self):
+        three_d_secure_request = payjp.ThreeDSecureRequest.create(resource_id='car_yyy')
+        self.requestor_mock.request.assert_called_with(
+            'post',
+            '/v1/three_d_secure_requests',
+            {
+                'resource_id': 'car_yyy',
+            },
+            None
+        )
+        self.assertTrue(isinstance(three_d_secure_request, payjp.ThreeDSecureRequest))
+        self.assertEqual(three_d_secure_request.id, 'tdsr_xxx')
+
 if __name__ == '__main__':
     unittest.main()

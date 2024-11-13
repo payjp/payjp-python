@@ -12,11 +12,22 @@ from payjp import api_requestor, error, util
 logger = logging.getLogger('payjp')
 
 def convert_to_payjp_object(resp, api_key, account, api_base=None):
-    types = {'account': Account, 'card': Card,
-             'charge': Charge, 'customer': Customer,
-             'event': Event, 'plan': Plan,
-             'subscription': Subscription, 'token': Token,
-             'transfer': Transfer, 'statement': Statement, 'list': ListObject, 'term': Term, 'balance': Balance}
+    types = {
+        'account': Account,
+        'card': Card,
+        'charge': Charge,
+        'customer': Customer,
+        'event': Event,
+        'plan': Plan,
+        'subscription': Subscription,
+        'token': Token,
+        'transfer': Transfer,
+        'statement': Statement,
+        'list': ListObject,
+        'term': Term,
+        'balance': Balance,
+        'three_d_secure_request': ThreeDSecureRequest,
+    }
 
     if isinstance(resp, list):
         return [convert_to_payjp_object(i, api_key, account, api_base) for i in resp]
@@ -449,3 +460,9 @@ class Balance(ListableAPIResource):
         url = cls.class_url() + f'/{id}/statement_urls'
         response, api_key = requestor.request('post', url, params)
         return convert_to_payjp_object(response, api_key, payjp_account, api_base)
+
+
+class ThreeDSecureRequest(CreateableAPIResource, ListableAPIResource):
+    @classmethod
+    def class_name(cls):
+        return 'three_d_secure_request'
