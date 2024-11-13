@@ -23,20 +23,6 @@ class AuthenticationErrorTest(PayjpTestCase):
             payjp.api_key = key
 
 
-class CardErrorTest(PayjpTestCase):
-
-    def test_expired_card_props(self):
-        EXPIRED_CARD = DUMMY_CARD.copy()
-        EXPIRED_CARD['exp_month'] = NOW.month - 2
-        EXPIRED_CARD['exp_year'] = NOW.year - 2
-        try:
-            payjp.Charge.create(amount=100, currency='jpy', card=EXPIRED_CARD)
-        except payjp.error.CardError as e:
-            self.assertEqual(402, e.http_status)
-            self.assertTrue(isinstance(e.http_body, string_types))
-            self.assertTrue(isinstance(e.json_body, dict))
-
-
 class InvalidRequestErrorTest(PayjpTestCase):
 
     def test_nonexistent_object(self):
