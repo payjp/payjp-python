@@ -773,7 +773,7 @@ class CustomerTest(PayjpResourceTest):
         )
 
     def test_create_customer(self):
-        payjp.Customer.create(description="foo bar", card=DUMMY_CARD)
+        payjp.Customer.create(description='foo bar', card=DUMMY_CARD)
         self.requestor_mock.request.assert_called_with(
             'post',
             '/v1/customers',
@@ -785,8 +785,8 @@ class CustomerTest(PayjpResourceTest):
         )
 
     def test_unset_description(self):
-        customer = payjp.Customer(id="cus_unset_desc")
-        customer.description = "Hey"
+        customer = payjp.Customer(id='cus_unset_desc')
+        customer.description = 'Hey'
         customer.save()
 
         self.requestor_mock.request.assert_called_with(
@@ -800,7 +800,7 @@ class CustomerTest(PayjpResourceTest):
 
     def test_cannot_set_empty_string(self):
         customer = payjp.Customer()
-        self.assertRaises(ValueError, setattr, customer, "description", "")
+        self.assertRaises(ValueError, setattr, customer, 'description', '')
 
     def test_customer_add_card(self):
         customer = payjp.Customer.construct_from({
@@ -902,8 +902,8 @@ class SubscriptionTest(PayjpResourceTest):
 
     def test_delete_subscriptions(self):
         sub = payjp.Subscription.construct_from(
-            {'id': "sub_delete",
-            'customer': "cus_foo",}
+            {'id': 'sub_delete',
+            'customer': 'cus_foo',}
             , 'api_key')
         sub.delete()
 
@@ -916,8 +916,8 @@ class SubscriptionTest(PayjpResourceTest):
 
     def test_update_subscription(self):
         sub = payjp.Subscription.construct_from(
-            {'id': "sub_update",
-            'customer': "cus_foo",
+            {'id': 'sub_update',
+            'customer': 'cus_foo',
             'plan': 'plan_foo'}
             , 'api_key')
         sub.plan = DUMMY_PLAN['id']
@@ -934,8 +934,8 @@ class SubscriptionTest(PayjpResourceTest):
     
     def test_pause_subscriptions(self):
         sub = payjp.Subscription.construct_from(
-            {'id': "sub_delete",
-            'customer': "cus_foo",
+            {'id': 'sub_delete',
+            'customer': 'cus_foo',
             'status': 'active'}
             , 'api_key')
         sub.pause()
@@ -948,8 +948,8 @@ class SubscriptionTest(PayjpResourceTest):
     
     def test_cancel_subscriptions(self):
         sub = payjp.Subscription.construct_from(
-            {'id': "sub_delete",
-            'customer': "cus_foo",
+            {'id': 'sub_delete',
+            'customer': 'cus_foo',
             'status': 'active'}
             , 'api_key')
         sub.cancel()
@@ -974,7 +974,7 @@ class PlanTest(PayjpResourceTest):
         )
 
     def test_delete_plan(self):
-        p = payjp.Plan(id="pl_delete")
+        p = payjp.Plan(id='pl_delete')
         p.delete()
 
         self.requestor_mock.request.assert_called_with(
@@ -985,8 +985,8 @@ class PlanTest(PayjpResourceTest):
         )
 
     def test_update_plan(self):
-        p = payjp.Plan(id="pl_update")
-        p.name = "Plan Name"
+        p = payjp.Plan(id='pl_update')
+        p.name = 'Plan Name'
         p.save()
 
         self.requestor_mock.request.assert_called_with(
@@ -1033,7 +1033,7 @@ class RefundTest(PayjpResourceTest):
             }
         }, 'api_key')
 
-        charge.refunds.retrieve("ref_get")
+        charge.refunds.retrieve('ref_get')
 
         self.requestor_mock.request.assert_called_with(
             'get',
@@ -1123,7 +1123,7 @@ class MetadataTest(PayjpResourceTest):
 class StatementTest(PayjpResourceTest):
     response = {
         'object': 'statement',
-        "id": "st_xxx",
+        'id': 'st_xxx',
     }
 
     def test_statement_urls(self):
@@ -1165,22 +1165,22 @@ class TermTest(PayjpResourceTest):
 
 class BalanceTest(PayjpResourceTest):
     response = {
-        "created": 1438354800,
-        "id": "ba_xxx",
-        "livemode": False,
-        "net": 1000,
-        "object": "balance",
-        "state": "collecting",
-        "statements": [{
-            "balance_id": "ba_xxx",
-            "created": 1438354800,
-            "id": "st_xxx",
-            "object": "statement",
+        'created': 1438354800,
+        'id': 'ba_xxx',
+        'livemode': False,
+        'net': 1000,
+        'object': 'balance',
+        'state': 'collecting',
+        'statements': [{
+            'balance_id': 'ba_xxx',
+            'created': 1438354800,
+            'id': 'st_xxx',
+            'object': 'statement',
         }],
-        "closed": False,
-        "due_date": None,
-        "bank_info": None,
-        "tenant_id": None
+        'closed': False,
+        'due_date': None,
+        'bank_info': None,
+        'tenant_id': None
     }
 
     def test_list_balances(self):
@@ -1229,18 +1229,18 @@ class BalanceTest(PayjpResourceTest):
 
 class ThreeDSecureRequestTest(PayjpResourceTest):
     response = {
-        "created": 1730084767,
-        "expired_at": None,
-        "finished_at": None,
-        "id": "tdsr_xxx",
-        "livemode": True,
-        "object": "three_d_secure_request",
-        "resource_id": "car_4ec110e0700daf893160424fe03c",
-        "result_received_at": None,
-        "started_at": None,
-        "state": "created",
-        "tenant_id": None,
-        "three_d_secure_status": "unverified"
+        'created': 1730084767,
+        'expired_at': None,
+        'finished_at': None,
+        'id': 'tdsr_xxx',
+        'livemode': True,
+        'object': 'three_d_secure_request',
+        'resource_id': 'car_4ec110e0700daf893160424fe03c',
+        'result_received_at': None,
+        'started_at': None,
+        'state': 'created',
+        'tenant_id': None,
+        'three_d_secure_status': 'unverified'
     }
 
     def test_list_three_d_secure(self):
