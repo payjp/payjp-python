@@ -25,10 +25,10 @@ class AuthenticationErrorTest(PayjpTestCase):
 
 class CardErrorTest(PayjpTestCase):
 
-    def test_expired_card_props(self):
+    def test_invalid_card_props(self):
         EXPIRED_CARD = DUMMY_CARD.copy()
-        EXPIRED_CARD['exp_month'] = NOW.month - 2
-        EXPIRED_CARD['exp_year'] = NOW.year - 2
+        EXPIRED_CARD['exp_month'] = NOW.month
+        EXPIRED_CARD['exp_year'] = NOW.year
         try:
             payjp.Charge.create(amount=100, currency='jpy', card=EXPIRED_CARD)
         except payjp.error.InvalidRequestError as e:
