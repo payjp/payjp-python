@@ -8,9 +8,7 @@ import logging
 import platform
 import time
 import random
-
-from six import PY3
-from six.moves.urllib.parse import urlencode, urlsplit, urlunsplit
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
 import payjp
 from . import (
@@ -128,12 +126,9 @@ class APIRequestor(object):
                 val = '!! %s' % (e,)
             ua[attr] = val
 
-        if PY3:
-            encoded_api_key = str(
-                base64.b64encode(
-                    bytes(''.join([my_api_key, ':']), 'utf-8')), 'utf-8')
-        else:
-            encoded_api_key = base64.b64encode(''.join([my_api_key, ':']))
+        encoded_api_key = str(
+            base64.b64encode(
+                bytes(''.join([my_api_key, ':']), 'utf-8')), 'utf-8')
 
         headers = {
             'X-Payjp-Client-User-Agent': json.dumps(ua),
@@ -215,4 +210,3 @@ def _build_api_url(url, query):
         query = '%s&%s' % (base_query, query)
 
     return urlunsplit((scheme, netloc, path, query, fragment))
-

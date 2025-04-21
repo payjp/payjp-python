@@ -8,8 +8,6 @@ import unittest
 
 from mock import patch, Mock
 
-from six import string_types
-
 import payjp
 
 NOW = datetime.datetime.now()
@@ -72,7 +70,7 @@ class PayjpTestCase(unittest.TestCase):
             if regexp is None:
                 return True
 
-            if isinstance(regexp, string_types):
+            if isinstance(regexp, str):
                 regexp = re.compile(regexp)
             if not regexp.search(str(err)):
                 raise self.failureException('"%s" does not match "%s"' %

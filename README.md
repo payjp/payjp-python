@@ -19,11 +19,10 @@ source code") for `payjp-python`, and then run:
 
 Please see our official [documentation](https://pay.jp/docs/api).
 
-## Dependencies 
+## Dependencies
 
 - requests
-- six
 
 Install dependencies from using [pip](http://www.pip-installer.org/en/latest/):
-    
+
     pip install -r requirements.txt

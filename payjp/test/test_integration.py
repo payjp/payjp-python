@@ -3,8 +3,6 @@
 import unittest
 import payjp
 
-from six import string_types
-
 from payjp.test.helper import (PayjpTestCase, NOW, DUMMY_CARD)
 
 
@@ -17,7 +15,7 @@ class AuthenticationErrorTest(PayjpTestCase):
             payjp.Customer.create()
         except payjp.error.AuthenticationError as e:
             self.assertEqual(401, e.http_status)
-            self.assertTrue(isinstance(e.http_body, string_types))
+            self.assertTrue(isinstance(e.http_body, str))
             self.assertTrue(isinstance(e.json_body, dict))
         finally:
             payjp.api_key = key
@@ -33,7 +31,7 @@ class CardErrorTest(PayjpTestCase):
             payjp.Charge.create(amount=100, currency='jpy', card=EXPIRED_CARD)
         except payjp.error.InvalidRequestError as e:
             self.assertEqual(400, e.http_status)
-            self.assertTrue(isinstance(e.http_body, string_types))
+            self.assertTrue(isinstance(e.http_body, str))
             self.assertTrue(isinstance(e.json_body, dict))
 
 
@@ -44,7 +42,7 @@ class InvalidRequestErrorTest(PayjpTestCase):
             payjp.Charge.retrieve('invalid')
         except payjp.error.InvalidRequestError as e:
             self.assertEqual(404, e.http_status)
-            self.assertTrue(isinstance(e.http_body, string_types))
+            self.assertTrue(isinstance(e.http_body, str))
             self.assertTrue(isinstance(e.json_body, dict))
 
     def test_invalid_data(self):
@@ -52,7 +50,7 @@ class InvalidRequestErrorTest(PayjpTestCase):
             payjp.Charge.create()
         except payjp.error.InvalidRequestError as e:
             self.assertEqual(400, e.http_status)
-            self.assertTrue(isinstance(e.http_body, string_types))
+            self.assertTrue(isinstance(e.http_body, str))
             self.assertTrue(isinstance(e.json_body, dict))
 
 

@@ -3,9 +3,7 @@
 import json
 import logging
 import sys
-
-from six import string_types
-from six.moves.urllib.parse import quote_plus
+from urllib.parse import quote_plus
 
 from payjp import api_requestor, error, util
 
@@ -34,7 +32,7 @@ def convert_to_payjp_object(resp, api_key, account, api_base=None):
     elif isinstance(resp, dict) and not isinstance(resp, PayjpObject):
         resp = resp.copy()
         klass_name = resp.get('object')
-        if isinstance(klass_name, string_types):
+        if isinstance(klass_name, str):
             klass = types.get(klass_name, PayjpObject)
         else:
             klass = PayjpObject
@@ -206,10 +204,10 @@ class PayjpObject(dict):
     def __repr__(self):
         ident_parts = [type(self).__name__]
 
-        if isinstance(self.get('object'), string_types):
+        if isinstance(self.get('object'), str):
             ident_parts.append(self.get('object'))
 
-        if isinstance(self.get('id'), string_types):
+        if isinstance(self.get('id'), str):
             ident_parts.append('id=%s' % (self.get('id'),))
 
         unicode_repr = '<%s at %s> JSON: %s' % (
