@@ -133,7 +133,7 @@ class APIRequestorRequestTests(PayjpUnitTestCase):
             ('%s[]', 'baz'),
         ],
         'string': [('%s', 'boo')],
-        'unicode': [('%s', payjp.util.utf8(u'\u1234'))],
+        'unicode': [('%s', u'\u1234')],
         'datetime': [('%s', 1356994801)],
         'none': [],
     }

@@ -5,7 +5,7 @@ import logging
 import sys
 from urllib.parse import quote_plus
 
-from payjp import api_requestor, error, util
+from payjp import api_requestor, error
 
 logger = logging.getLogger('payjp')
 
@@ -239,7 +239,6 @@ class ListObject(PayjpObject):
 
     def retrieve(self, id, **params):
         base = self.get('url')
-        id = util.utf8(id)
         extn = quote_plus(id)
         url = "%s/%s" % (base, extn)
 
@@ -380,7 +379,6 @@ class Account(APIResource):
         id = self.get('id')
         if not id:
             return "/v1/accounts"
-        id = util.utf8(id)
         base = self.class_url()
         extn = quote_plus(id)
         return "%s/%s" % (base, extn)
@@ -389,11 +387,8 @@ class Account(APIResource):
 class Card(UpdateableAPIResource, DeletableAPIResource):
 
     def instance_url(self):
-        self.id = util.utf8(self.id)
         extn = quote_plus(self.id)
         if (hasattr(self, 'customer')):
-            self.customer = util.utf8(self.customer)
-
             base = Customer.class_url()
             owner_extn = quote_plus(self.customer)
 

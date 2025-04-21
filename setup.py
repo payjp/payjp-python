@@ -1,13 +1,11 @@
-# coding: utf-8
-
 import sys
 
 from setuptools import setup
 
 install_requires = []
 
-if sys.version_info < (3, 0):
-    raise DeprecationWarning('Python 2 is no longer supported by PAY.JP. Please use Python 3.')
+if sys.version_info < (3, 8):
+    raise DeprecationWarning('Python versions below 3.8 are no longer supported by PAY.JP. Please use Python 3.8 or higher.')
 
 install_requires.append('requests >= 2.7.0')
 
