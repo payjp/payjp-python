@@ -2,16 +2,16 @@
 
 
 class PayjpException(Exception):
-    def __init__(self, message=None, http_body=None, http_status=None,
-                 json_body=None):
+    def __init__(self, message=None, http_body=None, http_status=None, json_body=None):
         super(PayjpException, self).__init__(message)
 
-        if http_body and hasattr(http_body, 'decode'):
+        if http_body and hasattr(http_body, "decode"):
             try:
-                http_body = http_body.decode('utf-8')
-            except:
-                http_body = ('<Could not decode body as utf-8. '
-                             'Please report to support@pay.jp>')
+                http_body = http_body.decode("utf-8")
+            except Exception:
+                http_body = (
+                    "<Could not decode body as utf-8. Please report to support@pay.jp>"
+                )
 
         self.http_body = http_body
 
@@ -28,10 +28,10 @@ class APIConnectionError(PayjpException):
 
 
 class CardError(PayjpException):
-    def __init__(self, message, param, code, http_body=None,
-                 http_status=None, json_body=None):
-        super(CardError, self).__init__(message,
-                                        http_body, http_status, json_body)
+    def __init__(
+        self, message, param, code, http_body=None, http_status=None, json_body=None
+    ):
+        super(CardError, self).__init__(message, http_body, http_status, json_body)
         self.param = param
         self.code = code
 
@@ -41,9 +41,10 @@ class AuthenticationError(PayjpException):
 
 
 class InvalidRequestError(PayjpException):
-
-    def __init__(self, message, param, http_body=None,
-                 http_status=None, json_body=None):
+    def __init__(
+        self, message, param, http_body=None, http_status=None, json_body=None
+    ):
         super(InvalidRequestError, self).__init__(
-            message, http_body, http_status, json_body)
+            message, http_body, http_status, json_body
+        )
         self.param = param
