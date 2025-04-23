@@ -3,10 +3,9 @@
 import base64
 import datetime
 import unittest
+from urllib.parse import parse_qsl, urlsplit
 
 from mock import Mock, MagicMock, patch
-from six.moves.urllib.parse import parse_qsl, urlsplit
-from six import PY3
 
 import payjp
 
@@ -45,12 +44,9 @@ class APIHeaderMatcher(object):
                 self._extra_match(other))
 
     def _encode(self, api_key):
-        if PY3:
-            return str(
-                base64.b64encode(
-                    bytes(''.join([api_key, ':']), 'utf-8')), 'utf-8')
-        else:
-            return base64.b64encode(''.join([api_key, ':']))
+        return str(
+            base64.b64encode(
+                bytes(''.join([api_key, ':']), 'utf-8')), 'utf-8')
 
     def _keys_match(self, other):
         expected_keys = self.EXP_KEYS + list(self.extra.keys())
@@ -137,7 +133,7 @@ class APIRequestorRequestTests(PayjpUnitTestCase):
             ('%s[]', 'baz'),
         ],
         'string': [('%s', 'boo')],
-        'unicode': [('%s', payjp.util.utf8(u'\u1234'))],
+        'unicode': [('%s', u'\u1234')],
         'datetime': [('%s', 1356994801)],
         'none': [],
     }
@@ -413,7 +409,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
                 self.requestor.request('get', '/test', {})
-            
+
             self.assertEqual(error.exception.http_status, 499)
 
     def test_no_retry(self):
@@ -423,7 +419,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
                 self.requestor.request('get', '/test', {})
-            
+
             self.assertEqual(error.exception.http_status, 599)
 
     def test_full_retry(self):
@@ -434,7 +430,7 @@ class APIRequestorRetryTest(PayjpUnitTestCase):
         with self.request_raw_patch:
             with self.assertRaises(payjp.error.APIError) as error:
                 self.requestor.request('get', '/test', {})
-            
+
             self.assertEqual(error.exception.http_status, 429)
 
     def test_success_at_halfway_of_retries(self):
@@ -464,7 +460,7 @@ class APIRequestorRetryIntervalTest(PayjpUnitTestCase):
         self.assertTrue(16 <= self.requestor._get_retry_delay(10) <= 32)
 
 
-    
+
 
 if __name__ == '__main__':
     unittest.main()

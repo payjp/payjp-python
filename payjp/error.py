@@ -16,7 +16,7 @@ class PayjpException(Exception):
         self.http_body = http_body
 
         self.http_status = http_status
-        self.json_body = json_body 
+        self.json_body = json_body
 
 
 class APIError(PayjpException):
@@ -33,7 +33,7 @@ class CardError(PayjpException):
         super(CardError, self).__init__(message,
                                         http_body, http_status, json_body)
         self.param = param
-        self.code = code 
+        self.code = code
 
 
 class AuthenticationError(PayjpException):

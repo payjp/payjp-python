@@ -3,11 +3,9 @@
 import json
 import logging
 import sys
+from urllib.parse import quote_plus
 
-from six import string_types
-from six.moves.urllib.parse import quote_plus
-
-from payjp import api_requestor, error, util
+from payjp import api_requestor, error
 
 logger = logging.getLogger('payjp')
 
@@ -34,7 +32,7 @@ def convert_to_payjp_object(resp, api_key, account, api_base=None):
     elif isinstance(resp, dict) and not isinstance(resp, PayjpObject):
         resp = resp.copy()
         klass_name = resp.get('object')
-        if isinstance(klass_name, string_types):
+        if isinstance(klass_name, str):
             klass = types.get(klass_name, PayjpObject)
         else:
             klass = PayjpObject
@@ -206,10 +204,10 @@ class PayjpObject(dict):
     def __repr__(self):
         ident_parts = [type(self).__name__]
 
-        if isinstance(self.get('object'), string_types):
+        if isinstance(self.get('object'), str):
             ident_parts.append(self.get('object'))
 
-        if isinstance(self.get('id'), string_types):
+        if isinstance(self.get('id'), str):
             ident_parts.append('id=%s' % (self.get('id'),))
 
         unicode_repr = '<%s at %s> JSON: %s' % (
@@ -241,7 +239,6 @@ class ListObject(PayjpObject):
 
     def retrieve(self, id, **params):
         base = self.get('url')
-        id = util.utf8(id)
         extn = quote_plus(id)
         url = "%s/%s" % (base, extn)
 
@@ -382,7 +379,6 @@ class Account(APIResource):
         id = self.get('id')
         if not id:
             return "/v1/accounts"
-        id = util.utf8(id)
         base = self.class_url()
         extn = quote_plus(id)
         return "%s/%s" % (base, extn)
@@ -391,11 +387,8 @@ class Account(APIResource):
 class Card(UpdateableAPIResource, DeletableAPIResource):
 
     def instance_url(self):
-        self.id = util.utf8(self.id)
         extn = quote_plus(self.id)
         if (hasattr(self, 'customer')):
-            self.customer = util.utf8(self.customer)
-
             base = Customer.class_url()
             owner_extn = quote_plus(self.customer)
 

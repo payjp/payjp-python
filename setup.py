@@ -1,16 +1,13 @@
-# coding: utf-8
-
 import sys
 
 from setuptools import setup
 
 install_requires = []
 
-if sys.version_info < (2, 7):
-    raise DeprecationWarning('Python 2.6 and older are no longer supported by PAY.JP. ')
+if sys.version_info < (3, 8):
+    raise DeprecationWarning('Python versions below 3.8 are no longer supported by PAY.JP. Please use Python 3.8 or higher.')
 
 install_requires.append('requests >= 2.7.0')
-install_requires.append('six >= 1.9.0')
 
 setup(
     name="payjp",
@@ -21,4 +18,5 @@ setup(
     packages=['payjp', 'payjp.test'],
     url='https://github.com/payjp/payjp-python',
     install_requires=install_requires,
+    python_requires='>=3.0',
 )

@@ -8,15 +8,12 @@ import logging
 import platform
 import time
 import random
-
-from six import PY3
-from six.moves.urllib.parse import urlencode, urlsplit, urlunsplit
+from urllib.parse import urlencode, urlsplit, urlunsplit
 
 import payjp
 from . import (
     error,
     http_client,
-    util,
     version,
 )
 
@@ -128,12 +125,9 @@ class APIRequestor(object):
                 val = '!! %s' % (e,)
             ua[attr] = val
 
-        if PY3:
-            encoded_api_key = str(
-                base64.b64encode(
-                    bytes(''.join([my_api_key, ':']), 'utf-8')), 'utf-8')
-        else:
-            encoded_api_key = base64.b64encode(''.join([my_api_key, ':']))
+        encoded_api_key = str(
+            base64.b64encode(
+                bytes(''.join([my_api_key, ':']), 'utf-8')), 'utf-8')
 
         headers = {
             'X-Payjp-Client-User-Agent': json.dumps(ua),
@@ -190,14 +184,13 @@ def _encode_datetime(dttime):
 
 def _api_encode(data):
     for key, value in data.items():
-        key = util.utf8(key)
         if value is None:
             continue
         elif hasattr(value, 'payjp_id'):
             yield (key, value.payjp_id)
         elif isinstance(value, list) or isinstance(value, tuple):
             for subvalue in value:
-                yield ("%s[]" % (key,), util.utf8(subvalue))
+                yield ("%s[]" % (key,), subvalue)
         elif isinstance(value, dict):
             subdict = dict(('%s[%s]' % (key, subkey), subvalue) for
                            subkey, subvalue in value.items())
@@ -206,7 +199,7 @@ def _api_encode(data):
         elif isinstance(value, datetime.datetime):
             yield (key, _encode_datetime(value))
         else:
-            yield (key, util.utf8(value))
+            yield (key, value)
 
 def _build_api_url(url, query):
     scheme, netloc, path, base_query, fragment = urlsplit(url)
@@ -215,4 +208,3 @@ def _build_api_url(url, query):
         query = '%s&%s' % (base_query, query)
 
     return urlunsplit((scheme, netloc, path, query, fragment))
-
