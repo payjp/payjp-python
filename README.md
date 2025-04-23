@@ -21,6 +21,7 @@ Please see our official [documentation](https://pay.jp/docs/api).
 
 ## Dependencies
 
+- Python 3.8 or later
 - requests
 
 Install dependencies from using [pip](http://www.pip-installer.org/en/latest/):
