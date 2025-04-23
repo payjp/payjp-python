@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+# Python バージョンの最低要件
+target-version = "py38"
+
+# ラインの最大長
+line-length = 88
+
+[tool.ruff.lint]
+# ルールセットの選択
+select = [
+    "E",   # pycodestyle エラー
+    "F",   # pyflakes
+    "I",   # isort
+    "W",   # pycodestyle 警告
+]
+ignore = []
+
+# isort の設定
+[tool.ruff.lint.isort]
+known-first-party = ["payjp"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
