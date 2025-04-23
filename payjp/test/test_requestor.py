@@ -5,10 +5,9 @@ import datetime
 import unittest
 from urllib.parse import parse_qsl, urlsplit
 
-from mock import Mock, MagicMock, patch
+from mock import Mock, patch
 
 import payjp
-
 from payjp.test.helper import PayjpUnitTestCase
 
 VALID_API_METHODS = ("get", "post", "delete")

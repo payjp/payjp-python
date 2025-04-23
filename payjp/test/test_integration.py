@@ -1,9 +1,9 @@
 # coding: utf-8
 
 import unittest
-import payjp
 
-from payjp.test.helper import PayjpTestCase, NOW, DUMMY_CARD
+import payjp
+from payjp.test.helper import DUMMY_CARD, NOW, PayjpTestCase
 
 
 class AuthenticationErrorTest(PayjpTestCase):

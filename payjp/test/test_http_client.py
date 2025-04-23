@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import unittest
+import warnings
 
 from mock import Mock
 
 import payjp
-
 from payjp.test.helper import PayjpUnitTestCase
 
 VALID_API_METHODS = ("get", "post", "delete")
@@ -15,11 +15,11 @@ class HttpClientTests(PayjpUnitTestCase):
     def setUp(self):
         super(HttpClientTests, self).setUp()
 
-        self.original_filters = payjp.http_client.warnings.filters[:]
-        payjp.http_client.warnings.simplefilter("ignore")
+        self.original_filters = warnings.filters[:]
+        warnings.simplefilter("ignore")
 
     def tearDown(self):
-        payjp.http_client.warnings.filters = self.original_filters
+        warnings.filters = self.original_filters
 
         super(HttpClientTests, self).tearDown()
 

@@ -1,12 +1,11 @@
 import datetime
-import json
 import os
 import random
 import re
 import string
 import unittest
 
-from mock import patch, Mock
+from mock import Mock, patch
 
 import payjp
 

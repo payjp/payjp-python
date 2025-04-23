@@ -1,24 +1,22 @@
 # coding: utf-8
 
 import pickle
-import sys
 import unittest
 
 import payjp
 import payjp.resource
-
 from payjp.test.helper import (
-    PayjpUnitTestCase,
-    PayjpApiTestCase,
-    MyListable,
-    MyCreatable,
-    MyUpdateable,
-    MyDeletable,
-    MyResource,
-    NOW,
     DUMMY_CARD,
     DUMMY_CHARGE,
     DUMMY_PLAN,
+    NOW,
+    MyCreatable,
+    MyDeletable,
+    MyListable,
+    MyResource,
+    MyUpdateable,
+    PayjpApiTestCase,
+    PayjpUnitTestCase,
 )
 
 
@@ -128,9 +126,6 @@ class PayjpObjectTests(PayjpUnitTestCase):
         obj["object"] = "\u4e00boo\u1f00"
 
         res = repr(obj)
-
-        if sys.version_info[0] < 3:
-            res = unicode(repr(obj), "utf-8")
 
         self.assertTrue("<PayjpObject \u4e00boo\u1f00" in res)
         self.assertTrue("id=foo" in res)

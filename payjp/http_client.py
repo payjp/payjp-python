@@ -1,11 +1,10 @@
 # coding: utf-8
 
 import textwrap
-import warnings
-
-from payjp import error
 
 import requests
+
+from payjp import error
 
 
 def new_default_http_client(*args, **kwargs):
