@@ -55,7 +55,7 @@ class RequestsClient(HTTPClient):
             msg = (
                 "Unexpected error communicating with Payjp.  "
                 "If this problem persists, let us know at "
-                "support@payjp.com."
+                "support@pay.jp."
             )
             err = "%s: %s" % (type(e).__name__, str(e))
         else:
@@ -63,7 +63,7 @@ class RequestsClient(HTTPClient):
                 "Unexpected error communicating with Payjp. "
                 "It looks like there's probably a configuration "
                 "issue locally.  If this problem persists, let us "
-                "know at support@payjp.com."
+                "know at support@pay.jp."
             )
             err = "A %s was raised" % (type(e).__name__,)
             if str(e):
